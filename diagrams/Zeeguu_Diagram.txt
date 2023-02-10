@@ -1,0 +1,72 @@
+@startuml 
+package zeeguu
+package api
+package core
+package api
+package account_management
+package bookmark_quality
+package configuration
+package content_recommender
+package content_retriever
+package crowd_translations
+package definition_of_learned
+package elastic
+package emailer
+package language
+package model
+package sql
+package user_activity_hooks
+package word_scheduling
+package word_stats
+package teacher_dashboard
+package strategies
+package learner_stats
+package smartwatch
+package word_knowledge
+package learner
+package teacher
+package arts
+package basicSR
+package analysis
+package experiments
+api-->configuration
+api-->basicSR
+api-->api
+api-->model
+api-->emailer
+api-->user_activity_hooks
+api-->arts
+account_management-->model
+account_management-->emailer
+bookmark_quality-->model
+content_recommender-->elastic
+content_retriever-->model
+content_retriever-->elastic
+elastic-->model
+emailer-->model
+language-->strategies
+model-->core
+model-->language
+model-->content_retriever
+model-->bookmark_quality
+teacher_dashboard-->model
+teacher_dashboard-->emailer
+teacher_dashboard-->teacher
+teacher_dashboard-->sql
+teacher_dashboard-->learner
+strategies-->core
+strategies-->word_knowledge
+strategies-->language
+learner_stats-->model
+smartwatch-->model
+word_knowledge-->core
+learner-->sql
+teacher-->sql
+arts-->model
+arts-->experiments
+arts-->analysis
+arts-->learner_stats
+basicSR-->model
+basicSR-->sql
+experiments-->arts
+@enduml
