@@ -1,7 +1,12 @@
 @startuml 
 package tp_src
-package api
-package controller
-package tp_core
-package sub_api
-package sub_core
+package "api"
+package "controller"
+package "tp_core"
+package "sub_api"
+package "tp_core* module:tp_core"
+"api"-->"tp_core"
+"api"-->"sub_api"
+"tp_core"-->"tp_core* module:tp_core"
+"tp_core"-->"controller"
+@enduml

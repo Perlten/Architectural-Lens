@@ -36,8 +36,9 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
         for child in curr_node.child_module:
             if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
                 duplicate_name_check(node_tracker.keys(), child)
+                name = get_name_for_module_duplicate_checker(child)
                 f = open(diagram_name_txt, "a")
-                f.write(diagram_type + get_name_for_module_duplicate_checker(child) + "\n")
+                f.write(diagram_type + "\""+ get_name_for_module_duplicate_checker(child) + "\""+"\n")
                 que.enqueue(child)
                 node_tracker[child.path] = True
             f.close()
@@ -55,10 +56,12 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
                 node_tracker_dependencies[child.path] = True
 
         dependencies: set[BTModule] = curr_node.get_module_dependencies()
+        name_curr_node = get_name_for_module_duplicate_checker(curr_node)
         for dependency in dependencies:
+            name_dependency = get_name_for_module_duplicate_checker(dependency)
             if curr_node.path != dependency.path and dependency.path in node_tracker:
                 f = open(diagram_name_txt, "a")
-                f.write(curr_node.name + "-->" + dependency.name + "\n")
+                f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
                 f.close()
 
     f = open(diagram_name_txt, "a")
@@ -170,7 +173,7 @@ def duplicate_name_check(node_paths, new_node:BTModule):
         end_of_path = path_sep[-1]
         if new_node.name == end_of_path:
             new_node_split = new_node.path.split("/")
-            new_node_name = new_node_split[-2]+"."+new_node_split[-1]
+            new_node_name = new_node_split[-2]+ " * module:"+new_node_split[-1]
             new_node.name_if_duplicate_exists = new_node_name
 
 def ignore_modules_check(list_ignore, module):

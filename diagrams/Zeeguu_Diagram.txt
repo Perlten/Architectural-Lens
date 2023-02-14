@@ -2,7 +2,7 @@
 package zeeguu
 package api
 package core
-package api
+package apiXapi
 package account_management
 package bookmark_quality
 package configuration
@@ -30,30 +30,30 @@ package basicSR
 package analysis
 package experiments
 api-->configuration
-api-->basicSR
-api-->api
-api-->model
-api-->emailer
-api-->user_activity_hooks
-api-->arts
-account_management-->model
+apiXapi-->api
+apiXapi-->basicSR
+apiXapi-->arts
+apiXapi-->user_activity_hooks
+apiXapi-->model
+apiXapi-->emailer
 account_management-->emailer
+account_management-->model
 bookmark_quality-->model
 content_recommender-->elastic
-content_retriever-->model
 content_retriever-->elastic
+content_retriever-->model
 elastic-->model
 emailer-->model
 language-->strategies
-model-->core
 model-->language
+model-->core
 model-->content_retriever
 model-->bookmark_quality
-teacher_dashboard-->model
-teacher_dashboard-->emailer
 teacher_dashboard-->teacher
-teacher_dashboard-->sql
+teacher_dashboard-->model
 teacher_dashboard-->learner
+teacher_dashboard-->emailer
+teacher_dashboard-->sql
 strategies-->core
 strategies-->word_knowledge
 strategies-->language
@@ -62,11 +62,11 @@ smartwatch-->model
 word_knowledge-->core
 learner-->sql
 teacher-->sql
-arts-->model
 arts-->experiments
-arts-->analysis
 arts-->learner_stats
-basicSR-->model
+arts-->model
+arts-->analysis
 basicSR-->sql
+basicSR-->model
 experiments-->arts
 @enduml
