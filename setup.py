@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="BT-diagrams",
-    version="0.0.3",
+    version="0.0.4",
     description="Thesis project",
     author="Nikolai Perlt",
     author_email="npe@itu.dk",
