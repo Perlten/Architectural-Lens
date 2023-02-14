@@ -1,0 +1,81 @@
+@startuml 
+package __init__
+package api
+package core
+package test
+package account_management
+package bookmark_quality
+package configuration
+package content_recommender
+package content_retriever
+package crowd_translations
+package definition_of_learned
+package elastic
+package emailer
+package exercises
+package language
+package model
+package sql
+package user_activity_hooks
+package util
+package word_scheduling
+package word_stats
+package mocks
+package strategies
+package learner_stats
+package smartwatch
+package word_knowledge
+package learner
+package teacher
+package arts
+package basicSR
+package analysis
+package experiments
+package tools
+api-->configuration
+test-->model
+test-->test_data
+test-->api
+test-->test
+account_management-->model
+account_management-->emailer
+bookmark_quality-->model
+bookmark_quality-->bookmark_quality
+bookmark_quality-->util
+content_recommender-->elastic
+content_recommender-->util
+content_retriever-->elastic
+content_retriever-->content_retriever
+content_retriever-->model
+elastic-->model
+emailer-->model
+emailer-->emailer
+language-->language
+language-->strategies
+model-->model
+model-->language
+model-->core
+model-->bookmark_quality
+model-->util
+model-->content_retriever
+util-->core
+strategies-->language
+strategies-->word_knowledge
+strategies-->core
+strategies-->util
+learner_stats-->model
+smartwatch-->model
+word_knowledge-->core
+learner-->sql
+teacher-->sql
+arts-->model
+arts-->analysis
+arts-->experiments
+arts-->util
+arts-->learner_stats
+arts-->arts
+basicSR-->model
+basicSR-->sql
+experiments-->arts
+tools-->arts
+@enduml
