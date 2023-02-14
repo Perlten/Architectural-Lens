@@ -70,7 +70,7 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
     create_file(diagram_name_txt)
 
     # comment in when done, but leaving it in atm for developing purposes
-    # os.remove(diagram_name_txt)
+    os.remove(diagram_name_txt)
 
 
 def create_file(name):
@@ -110,7 +110,7 @@ def plantuml_diagram_creator_sub_domains(
         f.write("@startuml \n")
         f.close()
 
-    while que.isEmpty() != True:
+    while not que.isEmpty():
 
         curr_node: BTModule = que.dequeue()
 
@@ -164,7 +164,7 @@ def plantuml_diagram_creator_sub_domains(
     create_file(diagram_name_txt)
 
     # comment in when done, but leaving it in atm for developing purposes
-    # os.remove(diagram_name_txt)
+    os.remove(diagram_name_txt)
 
 def get_name_for_module_duplicate_checker(module:BTModule):
     if module.name_if_duplicate_exists != None:
