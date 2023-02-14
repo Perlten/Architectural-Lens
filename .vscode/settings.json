@@ -1,6 +1,7 @@
 {
     "python.formatting.provider": "black",
     "cSpell.words": [
+        "jsonschema",
         "modname",
         "typer",
         "zeeguu"
@@ -15,7 +16,7 @@
             "fileMatch": [
                 "/*/bt_config.json",
             ],
-            "url": "../config.schema.json"
+            "url": "./config.schema.json"
         }
     ]
 }

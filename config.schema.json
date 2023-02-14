@@ -1,6 +1,11 @@
 {
     "$schema": "http://json-schema.org/schema",
     "type": "object",
+    "required": [
+        "name",
+        "rootFolder",
+        "views"
+    ],
     "properties": {
         "name": {
             "type": "string",
@@ -8,11 +13,24 @@
         },
         "rootFolder": {
             "type": "string",
-            "description": "TODO"
+            "description": "Point to the root package of the project"
         },
         "SaveLocation": {
             "type": "string",
-            "description": "TODO"
+            "description": "The folder to which the diagrams should be saved in. If the folder does not exists it will be created",
+            "default": "./diagrams/"
+        },
+        "views": {
+            "type": "object",
+            "description": "Defines the views available",
+            "patternProperties": {
+                ".*": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         }
     }
 }

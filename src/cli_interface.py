@@ -1,6 +1,8 @@
 import typer
 import json
 import os
+import requests
+import jsonschema
 
 from src.core.bt_graph import BTGraph
 
@@ -10,12 +12,22 @@ from src.plantuml.plantuml_file_creator import (
 )
 
 
-def render(config_path: str):
+def read_config_file(config_path):
+    schema_url = "https://raw.githubusercontent.com/Perlten/Master-thesis-rename/feature/json-config/config.schema.json"
     config = None
-    with open(config_path) as f:
+    with open(config_path, "r") as f:
         config = json.load(f)
-    config["_config_path"] = os.path.dirname(config_path)
 
+    schema = requests.get(schema_url).json()
+
+    jsonschema.validate(instance=config, schema=schema)
+
+    config["_config_path"] = os.path.dirname(config_path)
+    return config
+
+
+def render(config_path: str):
+    config = read_config_file(config_path)
     g = BTGraph()
     g.build_graph(config)
 
