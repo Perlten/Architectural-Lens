@@ -19,36 +19,26 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.10'
-    
-    - name: Check if tag is present
-      id: check-tag
-      run: echo "::set-output name=tag_exists::$(if [ -n "$GITHUB_REF" ]; then echo "true"; else echo "false"; fi)"
-
-    # - name: Set version in setup.py
-    #   run: |
-    #     echo "Setting version to ${{github.ref_name}}"
-    #     sed -i "s/version=.*/version='${{github.ref_name}}',/" setup.py
-    #   if: steps.check-tag.outputs.tag_exists == 'true'
 
     - name: Set Setup version
       shell: pwsh
       run: |
-        (Get-Content -path ./setup.py -Raw) -replace 'version=.*','${{github.ref_name}}' | Set-Content -Path ./setup.py
-      if: steps.check-tag.outputs.tag_exists == 'true'
+        (Get-Content -path ./setup.py -Raw) -replace 'version=.*','version=${{github.ref_name}},' | Set-Content -Path ./setup.py
+      if: startsWith(github.ref, 'refs/tags/v')
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build
-      # if: steps.check-tag.outputs.tag_exists == 'true'
+      # if: startsWith(github.ref, 'refs/tags/v')
 
     - name: Build package
       run: python -m build
-      # if: steps.check-tag.outputs.tag_exists == 'true'
+      # if: startsWith(github.ref, 'refs/tags/v')
 
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
-      if: steps.check-tag.outputs.tag_exists == 'true'
+      if: startsWith(github.ref, 'refs/tags/v')
