@@ -1,0 +1,5 @@
+@startuml 
+package tp_core
+package sub_core
+sub_core-->tp_core
+@enduml

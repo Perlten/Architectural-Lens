@@ -31,15 +31,24 @@ def render(config_path: str):
     g = BTGraph()
     g.build_graph(config)
 
+    project_name = config.get("name")
+
     plantuml_diagram_creator_entire_domain(
-        g.root_module, config.get("name"), save_location=config.get("saveLocation")
+        g.root_module,
+        f"{project_name}-complete",
+        save_location=config.get("saveLocation"),
     )
 
-    # testing filtered view
-    # views = ["test_project/tp_src/api", "test_project/tp_src/tp_core/sub_core"]
-    # plantuml_diagram_creator_sub_domains(
-    #     g.root_module, diagram_name, views, "./diagrams/"
-    # )
+    for view_name, views in config.get("views").items():
+        formatted_views = [
+            os.path.join(config.get("rootFolder"), view) for view in views
+        ]
+        plantuml_diagram_creator_sub_domains(
+            g.root_module,
+            f"{project_name}-{view_name}",
+            formatted_views,
+            save_location=config.get("saveLocation"),
+        )
 
 
 def main():

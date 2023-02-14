@@ -8,8 +8,8 @@
             "api",
             "tp_core"
         ],
-        "completeView": [
-            ""
+        "coreView": [
+            "tp_core"
         ]
     }
 }

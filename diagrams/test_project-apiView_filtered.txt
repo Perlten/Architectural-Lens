@@ -1,9 +1,11 @@
 @startuml 
-package tp_src
 package api
-package controller
 package tp_core
 package sub_api
 package sub_core
+api-->tp_core
+api-->sub_api
 sub_api-->tp_core
+sub_core-->tp_core
+sub_core-->sub_api
 @enduml

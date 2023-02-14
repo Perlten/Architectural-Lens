@@ -18,6 +18,8 @@ class BTGraph:
         config_path = config.get("_config_path")
         self.root_module_location = os.path.join(config_path, config.get("rootFolder"))
         self.target_project_base_location = config_path
+
+        sys.path.append(config_path)
         sys.path.append(self.root_module_location)
 
         bt_module_list: list[BTModule] = []
