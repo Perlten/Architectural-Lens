@@ -36,7 +36,6 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
         for child in curr_node.child_module:
             if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
                 duplicate_name_check(node_tracker.keys(), child)
-                name = get_name_for_module_duplicate_checker(child)
                 f = open(diagram_name_txt, "a")
                 f.write(diagram_type + "\""+ get_name_for_module_duplicate_checker(child) + "\""+"\n")
                 que.enqueue(child)
@@ -83,7 +82,7 @@ def create_file(name):
 # "test_project/tp_src/tp_core/tp_sub_core"
 # this would give the 2 sub-systems starting at api and tp_sub_core and how/if they relate in a drawing
 def plantuml_diagram_creator_sub_domains(
-    root_node, diagram_name, list_of_subdomains, save_location="./"
+    root_node, diagram_name, list_of_subdomains, ignore_modules ,save_location="./"
 ):
     create_directory_if_not_exist(save_location)
 
@@ -113,43 +112,48 @@ def plantuml_diagram_creator_sub_domains(
 
     while que.isEmpty() != True:
 
-        curr_node = que.dequeue()
+        curr_node: BTModule = que.dequeue()
 
         # adds all modules we want in our subgraph
         for child in curr_node.child_module:
-            if child.name not in node_tracker:
+            if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
+                duplicate_name_check(node_tracker.keys(), child)
+                name = get_name_for_module_duplicate_checker(child)
+                x = 4
                 if check_if_module_should_be_in_filtered_graph(
                     child.path, list_of_subdomains
                 ):
                     f = open(diagram_name_txt, "a")
-                    f.write(diagram_type + child.name + "\n")
+                    f.write(diagram_type + "\""+ get_name_for_module_duplicate_checker(child) + "\""+"\n")
                     f.close()
 
                 que.enqueue(child)
-                node_tracker[child.name] = True
+                node_tracker[child.path] = True
 
     # adding all dependencies
     que.enqueue(root_node)
-    node_tracker = {}
+    node_tracker_dependencies = {}
     while que.isEmpty() != True:
 
         curr_node: BTModule = que.dequeue()
 
         for child in curr_node.child_module:
-            if child.name not in node_tracker:
+            if child.path not in node_tracker_dependencies and not ignore_modules_check(ignore_modules, child.name):
                 que.enqueue(child)
-                node_tracker[child.name] = True
+                node_tracker_dependencies[child.path] = True
 
         dependencies: set[BTModule] = curr_node.get_module_dependencies()
+        name_curr_node = get_name_for_module_duplicate_checker(curr_node)
+
         for dependency in dependencies:
-            x = 4
+            name_dependency = get_name_for_module_duplicate_checker(dependency)
             if check_if_module_should_be_in_filtered_graph(
                 dependency.path, list_of_subdomains
             ) and check_if_module_should_be_in_filtered_graph(
                 curr_node.path, list_of_subdomains
             ):
                 f = open(diagram_name_txt, "a")
-                f.write(curr_node.name + "-->" + dependency.name + "\n")
+                f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
                 f.close()
 
     # ends the uml
@@ -160,7 +164,7 @@ def plantuml_diagram_creator_sub_domains(
     create_file(diagram_name_txt)
 
     # comment in when done, but leaving it in atm for developing purposes
-    os.remove(diagram_name_txt)
+    # os.remove(diagram_name_txt)
 
 def get_name_for_module_duplicate_checker(module:BTModule):
     if module.name_if_duplicate_exists != None:
@@ -173,7 +177,7 @@ def duplicate_name_check(node_paths, new_node:BTModule):
         end_of_path = path_sep[-1]
         if new_node.name == end_of_path:
             new_node_split = new_node.path.split("/")
-            new_node_name = new_node_split[-2]+ " * module:"+new_node_split[-1]
+            new_node_name = "parent:"+new_node_split[-2]+ " * module:"+new_node_split[-1]
             new_node.name_if_duplicate_exists = new_node_name
 
 def ignore_modules_check(list_ignore, module):

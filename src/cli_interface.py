@@ -20,13 +20,14 @@ def render(config_path: str):
     ignore_modules = ["test", "tool", "util", "exercise", ]
 
     #entire view
-    plantuml_diagram_creator_entire_domain(g.root_module, diagram_name, ignore_modules , "./diagrams/")
+    # pl
+    # antuml_diagram_creator_entire_domain(g.root_module, diagram_name, ignore_modules , "./diagrams/")
 
-    #filtered view
-    # views = ["test_project/tp_src/api", "test_project/tp_src/tp_core/sub_core"]
-    # plantuml_diagram_creator_sub_domains(
-    #     g.root_module, diagram_name, views, "./diagrams/"
-    # )
+    # filtered view
+    views = ["test_project/tp_src/api", "test_project/tp_src/tp_core"]
+    plantuml_diagram_creator_sub_domains(
+        g.root_module, diagram_name, views,  ignore_modules,"./diagrams/"
+    )
 
 
     #anything that includes the word is gone
