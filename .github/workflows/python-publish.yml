@@ -24,15 +24,10 @@ jobs:
       id: check-tag
       run: echo "::set-output name=tag_exists::$(if [ -n "$GITHUB_REF" ]; then echo "true"; else echo "false"; fi)"
 
-    - name: Get version number from Git tag
-      id: get_version
-      run: echo "::set-env name=PACKAGE_VERSION::$(echo $GITHUB_REF | cut -d '/' -f 3 | cut -c 2-)"
-      if: steps.check-tag.outputs.tag_exists == 'true'
-
     - name: Set version in setup.py
       run: |
-        echo "Setting version to $PACKAGE_VERSION"
-        sed -i "s/version=.*/version='$PACKAGE_VERSION',/" setup.py
+        echo "Setting version to ${{github.ref_name}}"
+        sed -i "s/version=.*/version='${{github.ref_name}}',/" setup.py
       if: steps.check-tag.outputs.tag_exists == 'true'
 
     - name: Install dependencies
