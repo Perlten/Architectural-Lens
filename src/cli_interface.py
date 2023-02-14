@@ -1,4 +1,6 @@
 import typer
+import json
+import os
 
 from src.core.bt_graph import BTGraph
 
@@ -7,17 +9,18 @@ from src.plantuml.plantuml_file_creator import (
     plantuml_diagram_creator_sub_domains,
 )
 
-DEFAULT_SETTINGS = {"diagram_name": "", "project": None}
-
 
 def render(config_path: str):
-    g = BTGraph()
-    g.build_graph(config_path)
+    config = None
+    with open(config_path) as f:
+        config = json.load(f)
+    config["_config_path"] = os.path.dirname(config_path)
 
-    diagram_name = g.DEFAULT_SETTINGS.get("diagram_name", "unknown")
+    g = BTGraph()
+    g.build_graph(config)
 
     plantuml_diagram_creator_entire_domain(
-        g.root_module, diagram_name, save_location="./diagrams/"
+        g.root_module, config.get("name"), save_location=config.get("saveLocation")
     )
 
     # testing filtered view

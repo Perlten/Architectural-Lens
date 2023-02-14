@@ -1,0 +1,14 @@
+{
+    "name": "Test project",
+    "rootFolder": "tp_src",
+    "saveLocation": "./diagrams/",
+    "views": {
+        "completeView": [
+            ""
+        ],
+        "apiView": [
+            "api",
+            "tp_core"
+        ]
+    }
+}
