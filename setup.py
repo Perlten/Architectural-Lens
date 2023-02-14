@@ -8,7 +8,7 @@ setup(
     author_email="npe@itu.dk",
     url="https://github.com/Perlten/Master-thesis-rename",
     packages=find_packages(),
-    long_description="This is the long description"
+    long_description="This is the long description",
     install_requires=["plantuml", "typer", "astroid", "six"],
     classifiers=[
         "Programming Language :: Python :: 3.10",
