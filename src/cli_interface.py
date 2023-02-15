@@ -6,6 +6,8 @@ import jsonschema
 
 from src.core.bt_graph import BTGraph
 
+from src.plantuml.graph_test import create_git_graph
+
 from src.plantuml.plantuml_file_creator import (
     plantuml_diagram_creator_entire_domain,
     plantuml_diagram_creator_sub_domains,
@@ -27,9 +29,19 @@ def read_config_file(config_path):
 
 
 def render(config_path: str):
+    
+    
+    x = create_git_graph()
+    
+    
     config = read_config_file(config_path)
     g = BTGraph()
     g.build_graph(config)
+    
+    
+    
+    b = 4
+    
 
     project_name = config.get("name")
 
