@@ -38,7 +38,7 @@ def read_config_file(config_path):
 
     schema = requests.get(schema_url).json()
 
-    # jsonschema.validate(instance=config, schema=schema)
+    jsonschema.validate(instance=config, schema=schema)
 
     config["_config_path"] = os.path.dirname(config_path)
     return config
