@@ -6,7 +6,6 @@ import jsonschema
 
 from src.core.bt_graph import BTGraph
 from src.plantuml.plantuml_file_creator import (
-    plantuml_diagram_creator_entire_domain,
     plantuml_diagram_creator_sub_domains,
 )
 
@@ -17,12 +16,7 @@ def render(config_path: str):
 
     project_name = config.get("name")
 
-    # plantuml_diagram_creator_entire_domain(
-    #     g.root_module,
-    #     f"{project_name}-complete",
-    #     config.get("ignore_modules"),
-    #     save_location=config.get("saveLocation"),
-    # )
+
 
     for view_name, views in config.get("views").items():
         formatted_views = [

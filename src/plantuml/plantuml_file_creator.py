@@ -3,81 +3,6 @@ from src.core.bt_module import BTModule
 from pathlib import Path
 
 
-def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modules ,save_location="./"):
-    create_directory_if_not_exist(save_location)
-
-
-    diagram_type = "package "
-
-    que: Queue[BTModule] = Queue()
-
-    que.enqueue(root_node)
-
-    node_tracker = {}
-
-    diagram_name = diagram_name.replace(" ", "_")
-
-    diagram_name_txt = save_location + diagram_name + ".txt"
-
-    if os.path.exists(diagram_name_txt):
-        os.remove(diagram_name_txt)
-
-    # adding root to the drawing
-    f = open(diagram_name_txt, "a")
-    f.write("@startuml \n")
-    f.write(diagram_type + root_node.name + "\n")
-    f.close()
-
-    # adding all modules to the graph
-    while que.isEmpty() != True:
-
-        curr_node: BTModule = que.dequeue()
-
-        for child in curr_node.child_module:
-            if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
-                duplicate_name_check(node_tracker.keys(), child)
-                f = open(diagram_name_txt, "a")
-                f.write(diagram_type + "\""+ get_name_for_module_duplicate_checker(child) + "\""+"\n")
-                que.enqueue(child)
-                node_tracker[child.path] = True
-            f.close()
-
-    # adding all dependencies
-    que.enqueue(root_node)
-    node_tracker_dependencies = {}
-    while que.isEmpty() != True:
-
-        curr_node: BTModule = que.dequeue()
-
-        for child in curr_node.child_module:
-            if child.path not in node_tracker_dependencies and not ignore_modules_check(ignore_modules, child.name):
-                que.enqueue(child)
-                node_tracker_dependencies[child.path] = True
-
-        dependencies: set[BTModule] = curr_node.get_module_dependencies()
-        name_curr_node = get_name_for_module_duplicate_checker(curr_node)
-        for dependency in dependencies:
-            if not ignore_modules_check(ignore_modules, dependency.name):
-                name_dependency = get_name_for_module_duplicate_checker(dependency)
-                if curr_node.path != dependency.path and dependency.path in node_tracker:
-                    f = open(diagram_name_txt, "a")
-                    f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
-                    f.close()
-
-    f = open(diagram_name_txt, "a")
-    f.write("@enduml")
-    f.close()
-
-    create_file(diagram_name_txt)
-
-    # comment in when done, but leaving it in atm for developing purposes
-    # os.remove(diagram_name_txt)
-
-
-def create_file(name):
-    os.system("python -m plantuml " + name)
-
-
 # list of subdomains is a set of strings, could be:
 # "test_project/tp_src/api"
 # "test_project/tp_src/tp_core/tp_sub_core"
@@ -166,6 +91,11 @@ def plantuml_diagram_creator_sub_domains(
     # comment in when done, but leaving it in atm for developing purposes
     # os.remove(diagram_name_txt)
 
+
+def create_file(name):
+    os.system("python -m plantuml " + name)
+    
+    
 def get_name_for_module_duplicate_checker(module:BTModule):
     if module.name_if_duplicate_exists != None:
         return module.name_if_duplicate_exists
