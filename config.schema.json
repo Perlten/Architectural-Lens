@@ -25,18 +25,25 @@
             "description": "Defines the views available",
             "patternProperties": {
                 ".*": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
+                    "description": "The name of the view",
+                    "type": "object",
+                    "properties": {
+                        "views": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "ignoreModules": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Defines the modules to ignore"
+                        }
                     }
                 }
             }
-        },
-        "ignore_modules": {
-            "type": "array",
-            "description": "Defines the modules to ignore",
-            "default": ""
         }
-
     }
 }

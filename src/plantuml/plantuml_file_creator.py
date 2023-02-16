@@ -57,11 +57,12 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
         dependencies: set[BTModule] = curr_node.get_module_dependencies()
         name_curr_node = get_name_for_module_duplicate_checker(curr_node)
         for dependency in dependencies:
-            name_dependency = get_name_for_module_duplicate_checker(dependency)
-            if curr_node.path != dependency.path and dependency.path in node_tracker:
-                f = open(diagram_name_txt, "a")
-                f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
-                f.close()
+            if not ignore_modules_check(ignore_modules, dependency.name):
+                name_dependency = get_name_for_module_duplicate_checker(dependency)
+                if curr_node.path != dependency.path and dependency.path in node_tracker:
+                    f = open(diagram_name_txt, "a")
+                    f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
+                    f.close()
 
     f = open(diagram_name_txt, "a")
     f.write("@enduml")
@@ -70,7 +71,7 @@ def plantuml_diagram_creator_entire_domain(root_node, diagram_name, ignore_modul
     create_file(diagram_name_txt)
 
     # comment in when done, but leaving it in atm for developing purposes
-    os.remove(diagram_name_txt)
+    # os.remove(diagram_name_txt)
 
 
 def create_file(name):
@@ -118,8 +119,6 @@ def plantuml_diagram_creator_sub_domains(
         for child in curr_node.child_module:
             if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
                 duplicate_name_check(node_tracker.keys(), child)
-                name = get_name_for_module_duplicate_checker(child)
-                x = 4
                 if check_if_module_should_be_in_filtered_graph(
                     child.path, list_of_subdomains
                 ):
@@ -133,7 +132,7 @@ def plantuml_diagram_creator_sub_domains(
     # adding all dependencies
     que.enqueue(root_node)
     node_tracker_dependencies = {}
-    while que.isEmpty() != True:
+    while not que.isEmpty():
 
         curr_node: BTModule = que.dequeue()
 
@@ -146,15 +145,16 @@ def plantuml_diagram_creator_sub_domains(
         name_curr_node = get_name_for_module_duplicate_checker(curr_node)
 
         for dependency in dependencies:
-            name_dependency = get_name_for_module_duplicate_checker(dependency)
-            if check_if_module_should_be_in_filtered_graph(
-                dependency.path, list_of_subdomains
-            ) and check_if_module_should_be_in_filtered_graph(
-                curr_node.path, list_of_subdomains
-            ):
-                f = open(diagram_name_txt, "a")
-                f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
-                f.close()
+            if not ignore_modules_check(ignore_modules, dependency.name):
+                name_dependency = get_name_for_module_duplicate_checker(dependency)
+                if check_if_module_should_be_in_filtered_graph(
+                    dependency.path, list_of_subdomains
+                ) and check_if_module_should_be_in_filtered_graph(
+                    curr_node.path, list_of_subdomains
+                ):
+                    f = open(diagram_name_txt, "a")
+                    f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
+                    f.close()
 
     # ends the uml
     f = open(diagram_name_txt, "a")
@@ -164,7 +164,7 @@ def plantuml_diagram_creator_sub_domains(
     create_file(diagram_name_txt)
 
     # comment in when done, but leaving it in atm for developing purposes
-    os.remove(diagram_name_txt)
+    # os.remove(diagram_name_txt)
 
 def get_name_for_module_duplicate_checker(module:BTModule):
     if module.name_if_duplicate_exists != None:
