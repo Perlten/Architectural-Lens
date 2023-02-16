@@ -17,12 +17,12 @@ def render(config_path: str):
 
     project_name = config.get("name")
 
-    plantuml_diagram_creator_entire_domain(
-        g.root_module,
-        f"{project_name}-complete",
-        config.get("ignore_modules"),
-        save_location=config.get("saveLocation"),
-    )
+    # plantuml_diagram_creator_entire_domain(
+    #     g.root_module,
+    #     f"{project_name}-complete",
+    #     config.get("ignore_modules"),
+    #     save_location=config.get("saveLocation"),
+    # )
 
     for view_name, views in config.get("views").items():
         formatted_views = [
@@ -44,7 +44,7 @@ def read_config_file(config_path):
 
     schema = requests.get(schema_url).json()
 
-    jsonschema.validate(instance=config, schema=schema)
+    # jsonschema.validate(instance=config, schema=schema)
 
     config["_config_path"] = os.path.dirname(config_path)
     return config
