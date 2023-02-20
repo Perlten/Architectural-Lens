@@ -25,10 +25,6 @@ def plantuml_diagram_creator_sub_domains(
     # keeps track of names so we dont duplicate name modules in the graph
     name_tracker = {}
 
-    sub_domains_object = {}
-    for module in list_of_subdomains:
-        sub_domains_object[module] = True
-
     if os.path.exists(diagram_name_txt):
         os.remove(diagram_name_txt)
 
@@ -56,7 +52,7 @@ def plantuml_diagram_creator_sub_domains(
             ):
                 duplicate_name_check(name_tracker, child)
                 if check_if_module_should_be_in_filtered_graph(
-                    child.path, sub_domains_object
+                    child.path, list_of_subdomains
                 ):
                     f = open(diagram_name_txt, "a")
                     f.write(
@@ -93,9 +89,9 @@ def plantuml_diagram_creator_sub_domains(
             if not ignore_modules_check(ignore_modules, dependency.name):
                 name_dependency = get_name_for_module_duplicate_checker(dependency)
                 if check_if_module_should_be_in_filtered_graph(
-                    dependency.path, sub_domains_object
+                    dependency.path, list_of_subdomains
                 ) and check_if_module_should_be_in_filtered_graph(
-                    curr_node.path, sub_domains_object
+                    curr_node.path, list_of_subdomains
                 ):
                     # this if statement is made so that we dont point to ourselves
                     if name_curr_node != name_dependency:
