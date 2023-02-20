@@ -1,7 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/Perlten/MT-diagrams/master/config.schema.json",
-    "name": "test project",
-    "rootFolder": "tp_src",
+    "name": "qtile",
+    "rootFolder": "libqtile",
     "saveLocation": "./diagrams/",
     "views": {
         "completeView": {
