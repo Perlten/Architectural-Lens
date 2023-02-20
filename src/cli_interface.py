@@ -22,11 +22,7 @@ def render(config_path: str = "mt_config.json"):
 
     for view_name, views in config.get("views").items():
         formatted_views = [
-<<<<<<< HEAD
-            os.path.join(config.get("rootFolder"), view) for view in views['views']
-=======
             os.path.join(config.get("rootFolder"), view) for view in views["views"]
->>>>>>> master
         ]
         plantuml_diagram_creator_sub_domains(
             g.root_module,

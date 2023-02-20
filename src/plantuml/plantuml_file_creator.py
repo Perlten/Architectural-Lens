@@ -15,16 +15,16 @@ def plantuml_diagram_creator_sub_domains(
     diagram_type = "package "
     diagram_name = diagram_name.replace(" ", "_")
     diagram_name_txt = save_location + diagram_name + ".txt"
-    
+
     que: Queue[BTModule] = Queue()
     que.enqueue(root_node)
 
-    #tracks paths of nodes, so we dont enter the same node twice, path is needed so we dont hit duplicates
+    # tracks paths of nodes, so we dont enter the same node twice, path is needed so we dont hit duplicates
     node_tracker = {}
-    
-    #keeps track of names so we dont duplicate name modules in the graph
+
+    # keeps track of names so we dont duplicate name modules in the graph
     name_tracker = {}
-    
+
     sub_domains_object = {}
     for module in list_of_subdomains:
         sub_domains_object[module] = True
@@ -37,22 +37,23 @@ def plantuml_diagram_creator_sub_domains(
     if check_if_module_should_be_in_filtered_graph(root_node.path, list_of_subdomains):
         f = open(diagram_name_txt, "a")
         f.write("@startuml \n")
-        f.write("title "+diagram_name+  "\n")
+        f.write("title " + diagram_name + "\n")
         f.write(diagram_type + root_node.name + "\n")
         f.close()
     else:
         f = open(diagram_name_txt, "a")
         f.write("@startuml \n")
-        f.write("title "+diagram_name+  "\n")
+        f.write("title " + diagram_name + "\n")
         f.close()
 
     while not que.isEmpty():
-
         curr_node: BTModule = que.dequeue()
 
         # adds all modules we want in our subgraph
         for child in curr_node.child_module:
-            if child.path not in node_tracker and not ignore_modules_check(ignore_modules, child.name):
+            if child.path not in node_tracker and not ignore_modules_check(
+                ignore_modules, child.name
+            ):
                 duplicate_name_check(name_tracker, child)
                 if check_if_module_should_be_in_filtered_graph(
                     child.path, sub_domains_object
@@ -75,7 +76,6 @@ def plantuml_diagram_creator_sub_domains(
     que.enqueue(root_node)
     node_tracker_dependencies = {}
     while not que.isEmpty():
-
         curr_node: BTModule = que.dequeue()
 
         for child in curr_node.child_module:
@@ -97,10 +97,19 @@ def plantuml_diagram_creator_sub_domains(
                 ) and check_if_module_should_be_in_filtered_graph(
                     curr_node.path, sub_domains_object
                 ):
-                    #this if statement is made so that we dont point to ourselves
+                    # this if statement is made so that we dont point to ourselves
                     if name_curr_node != name_dependency:
                         f = open(diagram_name_txt, "a")
-                        f.write( "\""+name_curr_node+ "\"" + "-->"+ "\""+  name_dependency +"\"" + "\n")
+                        f.write(
+                            '"'
+                            + name_curr_node
+                            + '"'
+                            + "-->"
+                            + '"'
+                            + name_dependency
+                            + '"'
+                            + "\n"
+                        )
                         f.close()
 
     # ends the uml
@@ -123,10 +132,11 @@ def get_name_for_module_duplicate_checker(module: BTModule):
         return module.name_if_duplicate_exists
     return module.name
 
-def duplicate_name_check(node_names, curr_node:BTModule):
+
+def duplicate_name_check(node_names, curr_node: BTModule):
     if curr_node.name in node_names:
         curr_node_split = curr_node.path.split("/")
-        curr_node_name = curr_node_split[-2]+ "/"+curr_node_split[-1]
+        curr_node_name = curr_node_split[-2] + "/" + curr_node_split[-1]
         curr_node.name_if_duplicate_exists = curr_node_name
 
 
@@ -138,15 +148,11 @@ def ignore_modules_check(list_ignore, module):
 
 
 def check_if_module_should_be_in_filtered_graph(module, allowed_modules):
-    if len(allowed_modules) == 0: return True
+    if len(allowed_modules) == 0:
+        return True
     if module in allowed_modules:
         return True
     return False
-    
-    # for module_curr in allowed_modules:
-    #     if module_curr in module:
-    #         return True
-    # return False
 
 
 def create_directory_if_not_exist(path: str):

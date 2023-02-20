@@ -41,14 +41,8 @@
             "id": "config_path",
             "description": "What config would you like to run",
             "options": [
-<<<<<<< HEAD
+                "${workspaceFolder}/test_projects/test_project/mt_config.json",
                 "${workspaceFolder}/test_projects/zeeguu/mt_config.json",
-                "${workspaceFolder}/test_projects/test_project/mt_config.json",
-                "${workspaceFolder}/test_projects/qtile/qtile_config.py",
-=======
-                "${workspaceFolder}/test_projects/test_project/mt_config.json",
-                "${workspaceFolder}/test_projects/test_project/test.json",
->>>>>>> master
             ],
             "default": "${workspaceFolder}/test_projects/test_project/mt_config.json",
         }
