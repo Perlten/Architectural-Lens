@@ -16,6 +16,29 @@
                 "util",
                 "tool"
             ]
+        },
+        "languageAndWordknowledgeView": {
+            "views": [
+                "core/language",
+                "core/model/word_knowledge"
+            ],
+            "ignoreModules": [
+                "test",
+                "exercise",
+                "util",
+                "tool"
+            ]
+        },
+        "coreView": {
+            "views": [
+                "core"
+            ],
+            "ignoreModules": [
+                "test",
+                "exercise",
+                "util",
+                "tool"
+            ]
         }
     }
 }

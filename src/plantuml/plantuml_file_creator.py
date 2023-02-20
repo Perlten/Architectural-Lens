@@ -150,8 +150,9 @@ def ignore_modules_check(list_ignore, module):
 def check_if_module_should_be_in_filtered_graph(module, allowed_modules):
     if len(allowed_modules) == 0:
         return True
-    if module in allowed_modules:
-        return True
+    for module_curr in allowed_modules:
+        if module_curr in module:
+            return True
     return False
 
 
