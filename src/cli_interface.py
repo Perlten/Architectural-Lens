@@ -20,9 +20,8 @@ def render(config_path: str):
 
     for view_name, views in config.get("views").items():
         formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views['view']
+            os.path.join(config.get("rootFolder"), view) for view in views['views']
         ]
-        x = 4
         plantuml_diagram_creator_sub_domains(
             g.root_module,
             f"{project_name}-{view_name}",
@@ -39,7 +38,7 @@ def read_config_file(config_path):
 
     schema = requests.get(schema_url).json()
 
-    #jsonschema.validate(instance=config, schema=schema)
+    jsonschema.validate(instance=config, schema=schema)
 
     config["_config_path"] = os.path.dirname(config_path)
     return config
