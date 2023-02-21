@@ -1,0 +1,12 @@
+{
+    "$schema": "https://raw.githubusercontent.com/Perlten/MT-diagrams/master/config.schema.json",
+    "name": "zeeguu",
+    "rootFolder": "zeeguu",
+    "saveLocation": "./diagrams/",
+    "views": {
+        "completeView": {
+            "views": [],
+            "ignoreModules": []
+        }
+    }
+}

@@ -19,13 +19,13 @@ def create_git_graph():
     repo.git.checkout("main")
     repo.remotes.origin.pull()
 
-    # Print the files
-    for root, dirs, files in os.walk(temp_dir):
-        for file in files:
-            print(os.path.join(root, file))
+    # Print the files - incomment for testing purposes
+    # for root, dirs, files in os.walk(temp_dir):
+    #     for file in files:
+    #         print(os.path.join(root, file))
 
     # Build a graph of the master branch
-    config = read_config_file(temp_dir+"/bt_config.json")
+    config = read_config_file(temp_dir + "/bt_config.json")
     g = BTGraph()
     g.build_graph(config)
 
@@ -36,7 +36,6 @@ def create_git_graph():
     shutil.rmtree(temp_dir)
 
     return g
-
 
 
 def read_config_file(config_path):
@@ -53,14 +52,5 @@ def read_config_file(config_path):
     return config
 
 
-
-if __name__ == '__main__':
-    # print("yo")
+if __name__ == "__main__":
     create_git_graph()
-
-
-
-# 'test_projects/test_project/bt_config.json'
-
-
-

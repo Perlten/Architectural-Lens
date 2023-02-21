@@ -1,9 +1,0 @@
-@startuml 
-title zeeguu-languageAndWordknowledgeView
-package "language"
-package "strategies"
-package "word_knowledge"
-"language"-->"strategies"
-"strategies"-->"language"
-"strategies"-->"word_knowledge"
-@enduml
