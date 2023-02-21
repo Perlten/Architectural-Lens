@@ -3,10 +3,11 @@ import json
 import os
 import requests
 import jsonschema
+import tempfile
 
 from src.core.bt_graph import BTGraph
 
-from src.plantuml.graph_test import create_git_graph
+from src.plantuml.fetch_git import fetch_git_repo
 
 from src.plantuml.plantuml_file_creator import (
     plantuml_diagram_creator_sub_domains,
@@ -17,23 +18,34 @@ app = typer.Typer(add_completion=True)
 
 @app.command()
 def render(config_path: str = "mt_config.json"):
-    config = read_config_file(config_path)
-    g = BTGraph()
-    g.build_graph(config)
 
-    project_name = config.get("name")
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        print("Created temporary directory:", tmp_dir)
 
-    for view_name, views in config.get("views").items():
-        formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views["views"]
-        ]
-        plantuml_diagram_creator_sub_domains(
-            g.root_module,
-            f"{project_name}-{view_name}",
-            formatted_views,
-            views["ignoreModules"],
-            save_location=config.get("saveLocation"),
-        )
+        fetch_git_repo(tmp_dir)
+        config_git = read_config_file(tmp_dir + "/mt_config.json")
+        g_git = BTGraph()
+        g_git.build_graph(config_git)
+
+        config = read_config_file(config_path)
+        g = BTGraph()
+        g.build_graph(config)
+
+        project_name = config.get("name")
+
+        for view_name, views in config.get("views").items():
+            formatted_views = [
+                os.path.join(config.get("rootFolder"), view) for view in views["views"]
+            ]
+            plantuml_diagram_creator_sub_domains(
+                g.root_module,
+                f"{project_name}-{view_name}",
+                formatted_views,
+                views["ignoreModules"],
+                g_git.root_module,
+                config.get("rootFolder"),
+                save_location=config.get("saveLocation"),
+            )
 
 
 @app.command()
@@ -59,37 +71,11 @@ def read_config_file(config_path):
     return config
 
 
-def render(config_path: str):
-    
-    config = read_config_file(config_path)
-    g = BTGraph()
-    g.build_graph(config)
-    
-    # graph_master = create_git_graph()
-
-    project_name = config.get("name")
-
-    plantuml_diagram_creator_sub_domains(
-        g.root_module,
-        f"{project_name}-complete",
-        save_location=config.get("saveLocation"),
-    )
-
-    for view_name, views in config.get("views").items():
-        formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views
-        ]
-        plantuml_diagram_creator_sub_domains(
-            g.root_module,
-            f"{project_name}-{view_name}",
-            formatted_views,
-            save_location=config.get("saveLocation"),
-        )
-
-
 def main():
     app()
 
+
+import sys
 
 if __name__ == "__main__":
     main()
