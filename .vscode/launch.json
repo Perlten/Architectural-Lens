@@ -43,7 +43,10 @@
             "options": [
                 "${workspaceFolder}/test_projects/test_project/mt_config.json",
                 "${workspaceFolder}/test_projects/zeeguu/mt_config.json",
+<<<<<<< HEAD
                 "${workspaceFolder}/test_projects/test_project/test.json",
+=======
+>>>>>>> master
             ],
             "default": "${workspaceFolder}/test_projects/test_project/mt_config.json",
         }
