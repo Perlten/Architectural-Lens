@@ -377,24 +377,3 @@ class Queue:
 
 
 queue = Queue()
-
-
-#  "completeView": {
-#             "views": [],
-#             "ignoreModules": []
-#         },
-
-#   if dep.name not in main_nodes:
-#                     f = open(diagram_name_txt, "a")
-#                     f.write(
-#                         '"'
-#                         + dependency
-#                         + '"'
-#                         + "-->"
-#                         + '"'
-#                         + dep.name
-#                         + '" #green'
-#                         + "\n"
-#                     )
-#                     f.close()
-#                 else:
