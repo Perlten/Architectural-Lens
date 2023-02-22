@@ -1,6 +1,7 @@
 import os
 from src.core.bt_module import BTModule
 from pathlib import Path
+import fileinput
 
 
 # list of subdomains is a set of strings, could be:
@@ -107,11 +108,11 @@ def plantuml_diagram_creator_sub_domains(
                         dep_str = name_curr_node + "-->" + name_dependency
                         if name_curr_node in dependencies_map:
                             dependency_list: list = dependencies_map[name_curr_node]
-                            dependency_list.append(name_dependency)
+                            dependency_list.append(dependency)
                             dependencies_map[name_curr_node] = dependency_list
                         else:
                             dependency_list = []
-                            dependency_list.append(name_dependency)
+                            dependency_list.append(dependency)
                             dependencies_map[name_curr_node] = dependency_list
 
                         ##
@@ -164,18 +165,21 @@ def plantuml_diagram_creator_sub_domains(
 
     for child in name_tracker.values():
         # children from original graph
-        node: BTModule = child
-        name = node.name
-        if name not in main_nodes:
-            f = open(diagram_name_txt, "a")
-            f.write(
-                diagram_type
-                + '"'
-                + get_name_for_module_duplicate_checker(node)
-                + '" #green'
-                + "\n"
-            )
-            f.close()
+        if check_if_module_should_be_in_filtered_graph(
+            child.path, list_of_subdomains
+        ) and not ignore_modules_check(ignore_modules, child.name):
+            node: BTModule = child
+            name = node.name
+            if name not in main_nodes:
+                f = open(diagram_name_txt, "a")
+                f.write(
+                    diagram_type
+                    + '"'
+                    + get_name_for_module_duplicate_checker(node)
+                    + '" #green'
+                    + "\n"
+                )
+                f.close()
     ########################################################################################################
 
     ##################################### TO BE REFACTORED #########################################
@@ -200,58 +204,69 @@ def plantuml_diagram_creator_sub_domains(
         name_curr_node = get_name_for_module_duplicate_checker(curr_node)
         dependencies: set[BTModule] = curr_node.get_module_dependencies()
 
-        print("yo222")
-        print(dependencies)
+        dependencies_map_main_graph[name_curr_node] = dependencies
 
         list_of_red_dependencies = find_red_dependencies(
             dependencies_map, name_curr_node, dependencies
         )
-        x = 4
-    #     for dependency in dependencies:
-    #         if not ignore_modules_check(ignore_modules, dependency.name):
-    #             name_dependency = get_name_for_module_duplicate_checker(dependency)
-    #             if check_if_module_should_be_in_filtered_graph(
-    #                 dependency.path, list_of_subdomains
-    #             ) and check_if_module_should_be_in_filtered_graph(
-    #                 curr_node.path, list_of_subdomains
-    #             ):
-    #                 # this if statement is made so that we dont point to ourselves
-    #                 if name_curr_node != name_dependency:
-    #                     # used to detect dependency changes
-    #                     dep_str = name_curr_node + "-->" + name_dependency
-    #                     dependencies_map_main_graph[dep_str] = (curr_node, dependency)
-    #                     ##
-    #                     if dep_str not in dependencies_map:
-    #                         f = open(diagram_name_txt, "a")
-    #                         f.write(
-    #                             '"'
-    #                             + name_curr_node
-    #                             + '"'
-    #                             + "-->"
-    #                             + '"'
-    #                             + name_dependency
-    #                             + '" #red'
-    #                             + "\n"
-    #                         )
-    #                         f.close()
 
-    # for dependency in dependencies_map.keys():
-    #     if dependency not in dependencies_map_main_graph.keys():
+        for dependency in list_of_red_dependencies:
+            if not ignore_modules_check(ignore_modules, dependency.name):
+                name_dependency = get_name_for_module_duplicate_checker(dependency)
+                if check_if_module_should_be_in_filtered_graph(
+                    dependency.path, list_of_subdomains
+                ) and check_if_module_should_be_in_filtered_graph(
+                    curr_node.path, list_of_subdomains
+                ):
+                    # this if statement is made so that we dont point to ourselves
+                    if name_curr_node != name_dependency:
+                        f = open(diagram_name_txt, "a")
+                        f.write(
+                            '"'
+                            + name_curr_node
+                            + '"'
+                            + "-->"
+                            + '"'
+                            + name_dependency
+                            + '" #red'
+                            + "\n"
+                        )
+                        f.close()
 
-    #         dependency_split = dependency.split("-->")
+    for dependency in dependencies_map:
+        # api, and a list of all its dependencies (from the base graph)
+        list_of_new_dependencies = dependencies_map[dependency]
 
-    #         f = open(diagram_name_txt, "a")
-    #         f.write(
-    #             '"'
-    #             + dependency_split[0]
-    #             + '"'
-    #             + "-->"
-    #             + '"'
-    #             + dependency_split[1]
-    #             + '" #green'
-    #             + "\n"
-    #         )
-    #         f.close()
+        list_of_old_dependencies = []
+        if dependency in dependencies_map_main_graph:
+            list_of_old_dependencies = dependencies_map_main_graph[dependency]
+
+        for dep in list_of_new_dependencies:
+            not_found_partner = True
+            for dep_old in list_of_old_dependencies:
+                if dep.name == dep_old.name:
+                    not_found_partner = False
+                    break
+            if not_found_partner:
+                for line in fileinput.input(diagram_name_txt, inplace=True):
+                    print(
+                        line.replace(
+                            '"' + dependency + '"' + "-->" + '"' + dep.name + '"',
+                            '"'
+                            + dependency
+                            + '"'
+                            + "-->"
+                            + '"'
+                            + dep.name
+                            + '" #green',
+                        ),
+                        end="",
+                    )
+                # f = open(diagram_name_txt, "a")
+                # f.write(
+                #     '"' + dependency + '"' + "-->" + '"' + dep.name + '" #green' + "\n"
+                # )
+                # f.close()
 
     #########################################################################################################
     # ends the uml
@@ -269,13 +284,17 @@ def find_red_dependencies(new_dependencies, node_name, old_dependencies: set[BTM
 
     if node_name not in new_dependencies:
         for dependency in old_dependencies:
-            res.append(dependency.name)
+            res.append(dependency)
     else:
         list_of_new_dep_graph = new_dependencies[node_name]
         for dependency in old_dependencies:
+            not_found_partner = True
             for new_dependency in list_of_new_dep_graph:
-                if dependency.name != new_dependency:
-                    res.append(dependency.name)
+                if dependency.name == new_dependency.name:
+                    not_found_partner = False
+                    break
+            if not_found_partner:
+                res.append(dependency)
 
     # if node_name in new_dependencies:
     #     list_of_new_dep_graph = new_dependencies[node_name]
@@ -287,7 +306,7 @@ def find_red_dependencies(new_dependencies, node_name, old_dependencies: set[BTM
 
 
 def create_file(name):
-    os.system("python -m plantuml " + name + ".svg" + " " + name)
+    os.system("python -m plantuml " + name)
 
 
 def get_name_for_module_duplicate_checker(module: BTModule):
@@ -358,3 +377,24 @@ class Queue:
 
 
 queue = Queue()
+
+
+#  "completeView": {
+#             "views": [],
+#             "ignoreModules": []
+#         },
+
+#   if dep.name not in main_nodes:
+#                     f = open(diagram_name_txt, "a")
+#                     f.write(
+#                         '"'
+#                         + dependency
+#                         + '"'
+#                         + "-->"
+#                         + '"'
+#                         + dep.name
+#                         + '" #green'
+#                         + "\n"
+#                     )
+#                     f.close()
+#                 else:
