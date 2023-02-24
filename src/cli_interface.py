@@ -4,6 +4,8 @@ import os
 import requests
 import jsonschema
 import tempfile
+import shutil
+from pathlib import Path
 
 from src.core.bt_graph import BTGraph
 
@@ -21,13 +23,18 @@ def render(config_path: str = "mt_config.json"):
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         print("Created temporary directory:", tmp_dir)
+        config = read_config_file(config_path)
 
-        fetch_git_repo(tmp_dir)
+        fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
+
+        my_file = Path("/path/to/file")
+        if not my_file.is_file():
+            shutil.copyfile(config_path, tmp_dir + "/mt_config.json")
+
         config_git = read_config_file(tmp_dir + "/mt_config.json")
         g_git = BTGraph()
         g_git.build_graph(config_git)
 
-        config = read_config_file(config_path)
         g = BTGraph()
         g.build_graph(config)
 
@@ -65,7 +72,7 @@ def read_config_file(config_path):
 
     schema = requests.get(schema_url).json()
 
-    jsonschema.validate(instance=config, schema=schema)
+    # jsonschema.validate(instance=config, schema=schema)
 
     config["_config_path"] = os.path.dirname(config_path)
     return config

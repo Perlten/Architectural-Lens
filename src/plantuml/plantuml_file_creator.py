@@ -57,7 +57,7 @@ def plantuml_diagram_creator_sub_domains(
             if child.path not in node_tracker and not ignore_modules_check(
                 ignore_modules, child.name
             ):
-                duplicate_name_check(name_tracker, child, node_tracker)
+                duplicate_name_check(name_tracker, child, node_tracker, None, True)
                 if check_if_module_should_be_in_filtered_graph(
                     child.path, list_of_subdomains
                 ):
@@ -141,7 +141,7 @@ def plantuml_diagram_creator_sub_domains(
             if child.path not in bfs_node_tracker and not ignore_modules_check(
                 ignore_modules, child.name
             ):
-                duplicate_name_check(name_tracker, child, node_tracker, root_folder)
+                duplicate_name_check(main_nodes, child, node_tracker, root_folder, True)
                 if check_if_module_should_be_in_filtered_graph(
                     child.path, list_of_subdomains
                 ):
@@ -192,11 +192,14 @@ def plantuml_diagram_creator_sub_domains(
     node_tracker_dependencies = {}
     while not que.isEmpty():
         curr_node: BTModule = que.dequeue()
-
+        x = curr_node.name
+        c = 4
         for child in curr_node.child_module:
+            name_of_child = get_name_for_module_duplicate_checker(child)
+            x = 4
             if (
                 child.path not in node_tracker_dependencies
-                and not ignore_modules_check(ignore_modules, child.name)
+                and not ignore_modules_check(ignore_modules, name_of_child)
             ):
                 que.enqueue(child)
                 node_tracker_dependencies[child.path] = True
@@ -316,10 +319,17 @@ def get_name_for_module_duplicate_checker(module: BTModule):
 
 
 def duplicate_name_check(
-    node_names, curr_node: BTModule, path_tracker, root_folder=None
+    node_names, curr_node: BTModule, path_tracker, root_folder=None, first=False
 ):
+
     if was_node_in_original_graph(curr_node, path_tracker, root_folder):
         if not curr_node.name_if_duplicate_exists:
+            if curr_node.name in node_names:
+                curr_node_split = curr_node.path.split("/")
+                curr_node_name = curr_node_split[-2] + "/" + curr_node_split[-1]
+                curr_node.name_if_duplicate_exists = curr_node_name
+    else:
+        if first:
             if curr_node.name in node_names:
                 curr_node_split = curr_node.path.split("/")
                 curr_node_name = curr_node_split[-2] + "/" + curr_node_split[-1]
@@ -336,7 +346,7 @@ def was_node_in_original_graph(node: BTModule, path_tracker, root_folder):
             if path_from_tracker == path_from_node:
                 if len(path_from_tracker.split("/")) != 2:
                     return True
-            return False
+        return False
 
 
 def ignore_modules_check(list_ignore, module):
