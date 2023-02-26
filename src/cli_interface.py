@@ -11,9 +11,7 @@ from src.core.bt_graph import BTGraph
 
 from src.plantuml.fetch_git import fetch_git_repo
 
-from src.plantuml.plantuml_file_creator import (
-    plantuml_diagram_creator_sub_domains,
-)
+from src.plantuml.plantuml_file_creator import plantuml_diagram_creator_sub_domains
 
 app = typer.Typer(add_completion=True)
 
@@ -30,13 +28,13 @@ def render(config_path: str = "mt_config.json"):
 
     for view_name, views in config.get("views").items():
         formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views["views"]
+            os.path.join(config.get("rootFolder"), view) for view in views["packages"]
         ]
         plantuml_diagram_creator_sub_domains(
             g.root_module,
             f"{project_name}-{view_name}",
             formatted_views,
-            views["ignoreModules"],
+            views["ignorePackages"],
             None,
             config.get("rootFolder"),
             save_location=config.get("saveLocation"),
@@ -73,7 +71,7 @@ def render_diff(config_path: str = "mt_config.json"):
                 g.root_module,
                 f"{project_name}-{view_name}",
                 formatted_views,
-                views["ignoreModules"],
+                views["ignorePackages"],
                 g_git.root_module,
                 config.get("rootFolder"),
                 save_location=config.get("saveLocation"),

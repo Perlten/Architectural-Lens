@@ -11,8 +11,8 @@ import fileinput
 def plantuml_diagram_creator_sub_domains(
     root_node,
     diagram_name,
-    list_of_subdomains,
-    ignore_modules,
+    packages,
+    ignore_packages,
     compare_graph_root,
     root_folder,
     save_location="./",
@@ -43,7 +43,7 @@ def plantuml_diagram_creator_sub_domains(
 
     # adding root to the drawing IF its meant to be in there
 
-    if check_if_module_should_be_in_filtered_graph(root_node.path, list_of_subdomains):
+    if check_if_module_should_be_in_filtered_graph(root_node.path, packages):
         f = open(diagram_name_txt, "a")
         f.write("@startuml \n")
         f.write("title " + diagram_name + "\n")
@@ -61,12 +61,10 @@ def plantuml_diagram_creator_sub_domains(
         # adds all modules we want in our subgraph
         for child in curr_node.child_module:
             if child.path not in node_tracker and not ignore_modules_check(
-                ignore_modules, child.name
+                ignore_packages, child.name
             ):
                 duplicate_name_check(name_tracker, child, node_tracker, None, True)
-                if check_if_module_should_be_in_filtered_graph(
-                    child.path, list_of_subdomains
-                ):
+                if check_if_module_should_be_in_filtered_graph(child.path, packages):
                     f = open(diagram_name_txt, "a")
                     f.write(
                         diagram_type
@@ -92,7 +90,7 @@ def plantuml_diagram_creator_sub_domains(
         for child in curr_node.child_module:
             if (
                 child.path not in node_tracker_dependencies
-                and not ignore_modules_check(ignore_modules, child.name)
+                and not ignore_modules_check(ignore_packages, child.name)
             ):
                 que.enqueue(child)
                 node_tracker_dependencies[child.path] = True
@@ -101,12 +99,12 @@ def plantuml_diagram_creator_sub_domains(
         name_curr_node = get_name_for_module_duplicate_checker(curr_node)
 
         for dependency in dependencies:
-            if not ignore_modules_check(ignore_modules, dependency.name):
+            if not ignore_modules_check(ignore_packages, dependency.name):
                 name_dependency = get_name_for_module_duplicate_checker(dependency)
                 if check_if_module_should_be_in_filtered_graph(
-                    dependency.path, list_of_subdomains
+                    dependency.path, packages
                 ) and check_if_module_should_be_in_filtered_graph(
-                    curr_node.path, list_of_subdomains
+                    curr_node.path, packages
                 ):
                     # this if statement is made so that we dont point to ourselves
                     if name_curr_node != name_dependency:
@@ -149,7 +147,7 @@ def plantuml_diagram_creator_sub_domains(
             curr_node: BTModule = que.dequeue()
             for child in curr_node.child_module:
                 if child.path not in bfs_node_tracker and not ignore_modules_check(
-                    ignore_modules, child.name
+                    ignore_packages, child.name
                 ):
                     que.enqueue(child)
                     bfs_node_tracker[child.path] = True
@@ -157,14 +155,14 @@ def plantuml_diagram_creator_sub_domains(
                         main_nodes, child, node_tracker, root_folder, True
                     )
                     if check_if_module_should_be_in_filtered_graph(
-                        child.path, list_of_subdomains, compare_graph_root
+                        child.path, packages, compare_graph_root
                     ):
 
                         main_nodes[child.name] = child
 
                         # this will be true, if the package has been deleted
                         if child.name not in name_tracker and not ignore_modules_check(
-                            ignore_modules, child.name
+                            ignore_packages, child.name
                         ):
                             f = open(diagram_name_txt, "a")
                             f.write(
@@ -179,8 +177,8 @@ def plantuml_diagram_creator_sub_domains(
         for child in name_tracker.values():
             # children from original graph
             if check_if_module_should_be_in_filtered_graph(
-                child.path, list_of_subdomains
-            ) and not ignore_modules_check(ignore_modules, child.name):
+                child.path, packages
+            ) and not ignore_modules_check(ignore_packages, child.name):
                 node: BTModule = child
                 name = node.name
                 if name not in main_nodes:
@@ -210,7 +208,7 @@ def plantuml_diagram_creator_sub_domains(
                 x = 4
                 if (
                     child.path not in node_tracker_dependencies
-                    and not ignore_modules_check(ignore_modules, name_of_child)
+                    and not ignore_modules_check(ignore_packages, name_of_child)
                 ):
                     que.enqueue(child)
                     node_tracker_dependencies[child.path] = True
@@ -225,12 +223,12 @@ def plantuml_diagram_creator_sub_domains(
             )
 
             for dependency in list_of_red_dependencies:
-                if not ignore_modules_check(ignore_modules, dependency.name):
+                if not ignore_modules_check(ignore_packages, dependency.name):
                     name_dependency = get_name_for_module_duplicate_checker(dependency)
                     if check_if_module_should_be_in_filtered_graph(
-                        dependency.path, list_of_subdomains
+                        dependency.path, packages
                     ) and check_if_module_should_be_in_filtered_graph(
-                        curr_node.path, list_of_subdomains
+                        curr_node.path, packages
                     ):
                         # this if statement is made so that we dont point to ourselves
                         if name_curr_node != name_dependency:
