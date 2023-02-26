@@ -21,7 +21,13 @@ def plantuml_diagram_creator_sub_domains(
 
     diagram_type = "package "
     diagram_name = diagram_name.replace(" ", "_")
-    diagram_name_txt = save_location + diagram_name + ".txt"
+    diagram_name_txt = ""
+    if compare_graph_root is not None:
+        diagram_name_txt = save_location + diagram_name + "diffView"
+    else:
+        diagram_name_txt = save_location + diagram_name
+
+    diagram_name_txt = diagram_name_txt + ".txt"
 
     que: Queue[BTModule] = Queue()
     que.enqueue(root_node)
@@ -129,147 +135,152 @@ def plantuml_diagram_creator_sub_domains(
                         )
                         f.close()
 
-    ##################################### TO BE REFACTORED #########################################
-    # this section finds modules and colors them green or red depending on if theyre old or new
+    # here we decide if we are diff view
 
-    que.enqueue(compare_graph_root)
-    bfs_node_tracker = {}
-    main_nodes = {}
-    while not que.isEmpty():
-        curr_node: BTModule = que.dequeue()
-        for child in curr_node.child_module:
-            if child.path not in bfs_node_tracker and not ignore_modules_check(
-                ignore_modules, child.name
-            ):
-                duplicate_name_check(main_nodes, child, node_tracker, root_folder, True)
-                if check_if_module_should_be_in_filtered_graph(
-                    child.path, list_of_subdomains
+    if compare_graph_root is not None:
+
+        ##################################### TO BE REFACTORED #########################################
+        # this section finds modules and colors them green or red depending on if theyre old or new
+
+        que.enqueue(compare_graph_root)
+        bfs_node_tracker = {}
+        main_nodes = {}
+        while not que.isEmpty():
+            curr_node: BTModule = que.dequeue()
+            for child in curr_node.child_module:
+                if child.path not in bfs_node_tracker and not ignore_modules_check(
+                    ignore_modules, child.name
                 ):
                     que.enqueue(child)
                     bfs_node_tracker[child.path] = True
-                    main_nodes[child.name] = child
-
-                    # this will be true, if the package has been deleted
-                    if child.name not in name_tracker and not ignore_modules_check(
-                        ignore_modules, child.name
-                    ):
-                        f = open(diagram_name_txt, "a")
-                        f.write(
-                            diagram_type
-                            + '"'
-                            + get_name_for_module_duplicate_checker(child)
-                            + '" #red'
-                            + "\n"
-                        )
-                        f.close()
-
-    for child in name_tracker.values():
-        # children from original graph
-        if check_if_module_should_be_in_filtered_graph(
-            child.path, list_of_subdomains
-        ) and not ignore_modules_check(ignore_modules, child.name):
-            node: BTModule = child
-            name = node.name
-            if name not in main_nodes:
-                f = open(diagram_name_txt, "a")
-                f.write(
-                    diagram_type
-                    + '"'
-                    + get_name_for_module_duplicate_checker(node)
-                    + '" #green'
-                    + "\n"
-                )
-                f.close()
-    ########################################################################################################
-
-    ##################################### TO BE REFACTORED #########################################
-    # this section finds Dependencies and colors them green or red depending on if theyre old or new
-
-    que.enqueue(compare_graph_root)
-
-    dependencies_map_main_graph = {}
-
-    node_tracker_dependencies = {}
-    while not que.isEmpty():
-        curr_node: BTModule = que.dequeue()
-        x = curr_node.name
-        c = 4
-        for child in curr_node.child_module:
-            name_of_child = get_name_for_module_duplicate_checker(child)
-            x = 4
-            if (
-                child.path not in node_tracker_dependencies
-                and not ignore_modules_check(ignore_modules, name_of_child)
-            ):
-                que.enqueue(child)
-                node_tracker_dependencies[child.path] = True
-
-        name_curr_node = get_name_for_module_duplicate_checker(curr_node)
-        dependencies: set[BTModule] = curr_node.get_module_dependencies()
-
-        dependencies_map_main_graph[name_curr_node] = dependencies
-
-        list_of_red_dependencies = find_red_dependencies(
-            dependencies_map, name_curr_node, dependencies
-        )
-
-        for dependency in list_of_red_dependencies:
-            if not ignore_modules_check(ignore_modules, dependency.name):
-                name_dependency = get_name_for_module_duplicate_checker(dependency)
-                if check_if_module_should_be_in_filtered_graph(
-                    dependency.path, list_of_subdomains
-                ) and check_if_module_should_be_in_filtered_graph(
-                    curr_node.path, list_of_subdomains
-                ):
-                    # this if statement is made so that we dont point to ourselves
-                    if name_curr_node != name_dependency:
-                        f = open(diagram_name_txt, "a")
-                        f.write(
-                            '"'
-                            + name_curr_node
-                            + '"'
-                            + "-->"
-                            + '"'
-                            + name_dependency
-                            + '" #red'
-                            + "\n"
-                        )
-                        f.close()
-
-    for dependency in dependencies_map:
-        # api, and a list of all its dependencies (from the base graph)
-        list_of_new_dependencies = dependencies_map[dependency]
-
-        list_of_old_dependencies = []
-        if dependency in dependencies_map_main_graph:
-            list_of_old_dependencies = dependencies_map_main_graph[dependency]
-
-        for dep in list_of_new_dependencies:
-            not_found_partner = True
-            for dep_old in list_of_old_dependencies:
-                if dep.name == dep_old.name:
-                    not_found_partner = False
-                    break
-            if not_found_partner:
-                for line in fileinput.input(diagram_name_txt, inplace=True):
-                    print(
-                        line.replace(
-                            '"' + dependency + '"' + "-->" + '"' + dep.name + '"',
-                            '"'
-                            + dependency
-                            + '"'
-                            + "-->"
-                            + '"'
-                            + dep.name
-                            + '" #green',
-                        ),
-                        end="",
+                    duplicate_name_check(
+                        main_nodes, child, node_tracker, root_folder, True
                     )
-                # f = open(diagram_name_txt, "a")
-                # f.write(
-                #     '"' + dependency + '"' + "-->" + '"' + dep.name + '" #green' + "\n"
-                # )
-                # f.close()
+                    if check_if_module_should_be_in_filtered_graph(
+                        child.path, list_of_subdomains, compare_graph_root
+                    ):
+
+                        main_nodes[child.name] = child
+
+                        # this will be true, if the package has been deleted
+                        if child.name not in name_tracker and not ignore_modules_check(
+                            ignore_modules, child.name
+                        ):
+                            f = open(diagram_name_txt, "a")
+                            f.write(
+                                diagram_type
+                                + '"'
+                                + get_name_for_module_duplicate_checker(child)
+                                + '" #red'
+                                + "\n"
+                            )
+                            f.close()
+
+        for child in name_tracker.values():
+            # children from original graph
+            if check_if_module_should_be_in_filtered_graph(
+                child.path, list_of_subdomains
+            ) and not ignore_modules_check(ignore_modules, child.name):
+                node: BTModule = child
+                name = node.name
+                if name not in main_nodes:
+                    f = open(diagram_name_txt, "a")
+                    f.write(
+                        diagram_type
+                        + '"'
+                        + get_name_for_module_duplicate_checker(node)
+                        + '" #green'
+                        + "\n"
+                    )
+                    f.close()
+        ########################################################################################################
+
+        ##################################### TO BE REFACTORED #########################################
+        # this section finds Dependencies and colors them green or red depending on if theyre old or new
+
+        que.enqueue(compare_graph_root)
+
+        dependencies_map_main_graph = {}
+
+        node_tracker_dependencies = {}
+        while not que.isEmpty():
+            curr_node: BTModule = que.dequeue()
+            for child in curr_node.child_module:
+                name_of_child = get_name_for_module_duplicate_checker(child)
+                x = 4
+                if (
+                    child.path not in node_tracker_dependencies
+                    and not ignore_modules_check(ignore_modules, name_of_child)
+                ):
+                    que.enqueue(child)
+                    node_tracker_dependencies[child.path] = True
+
+            name_curr_node = get_name_for_module_duplicate_checker(curr_node)
+            dependencies: set[BTModule] = curr_node.get_module_dependencies()
+
+            dependencies_map_main_graph[name_curr_node] = dependencies
+
+            list_of_red_dependencies = find_red_dependencies(
+                dependencies_map, name_curr_node, dependencies
+            )
+
+            for dependency in list_of_red_dependencies:
+                if not ignore_modules_check(ignore_modules, dependency.name):
+                    name_dependency = get_name_for_module_duplicate_checker(dependency)
+                    if check_if_module_should_be_in_filtered_graph(
+                        dependency.path, list_of_subdomains
+                    ) and check_if_module_should_be_in_filtered_graph(
+                        curr_node.path, list_of_subdomains
+                    ):
+                        # this if statement is made so that we dont point to ourselves
+                        if name_curr_node != name_dependency:
+                            f = open(diagram_name_txt, "a")
+                            f.write(
+                                '"'
+                                + name_curr_node
+                                + '"'
+                                + "-->"
+                                + '"'
+                                + name_dependency
+                                + '" #red'
+                                + "\n"
+                            )
+                            f.close()
+
+        for dependency in dependencies_map:
+            # api, and a list of all its dependencies (from the base graph)
+            list_of_new_dependencies = dependencies_map[dependency]
+
+            list_of_old_dependencies = []
+            if dependency in dependencies_map_main_graph:
+                list_of_old_dependencies = dependencies_map_main_graph[dependency]
+
+            for dep in list_of_new_dependencies:
+                not_found_partner = True
+                for dep_old in list_of_old_dependencies:
+                    if dep.name == dep_old.name:
+                        not_found_partner = False
+                        break
+                if not_found_partner:
+                    for line in fileinput.input(diagram_name_txt, inplace=True):
+                        print(
+                            line.replace(
+                                '"' + dependency + '"' + "-->" + '"' + dep.name + '"',
+                                '"'
+                                + dependency
+                                + '"'
+                                + "-->"
+                                + '"'
+                                + dep.name
+                                + '" #green',
+                            ),
+                            end="",
+                        )
+                    # f = open(diagram_name_txt, "a")
+                    # f.write(
+                    #     '"' + dependency + '"' + "-->" + '"' + dep.name + '" #green' + "\n"
+                    # )
+                    # f.close()
 
     #########################################################################################################
     # ends the uml
@@ -279,7 +290,7 @@ def plantuml_diagram_creator_sub_domains(
 
     create_file(diagram_name_txt)
     # comment in when done, but leaving it in atm for developing purposes
-    # os.remove(diagram_name_txt)
+    os.remove(diagram_name_txt)
 
 
 def find_red_dependencies(new_dependencies, node_name, old_dependencies: set[BTModule]):
@@ -298,13 +309,6 @@ def find_red_dependencies(new_dependencies, node_name, old_dependencies: set[BTM
                     break
             if not_found_partner:
                 res.append(dependency)
-
-    # if node_name in new_dependencies:
-    #     list_of_new_dep_graph = new_dependencies[node_name]
-    #     for new_dependency in list_of_new_dep_graph:
-    #         for old_dependency in old_dependencies:
-    #             if new_dependency != old_dependency.name:
-    #                 res.append(old_dependency.name)
     return res
 
 
@@ -356,9 +360,15 @@ def ignore_modules_check(list_ignore, module):
     return False
 
 
-def check_if_module_should_be_in_filtered_graph(module, allowed_modules):
+def check_if_module_should_be_in_filtered_graph(
+    module, allowed_modules, compare_graph_root=None
+):
     if len(allowed_modules) == 0:
         return True
+    if compare_graph_root is not None:
+        c = 4
+        split_mod = module.split("/")
+        module = "/".join(split_mod[3:])
     for module_curr in allowed_modules:
         if module_curr in module:
             return True

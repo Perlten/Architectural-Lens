@@ -9,7 +9,10 @@
     "saveLocation": "./diagrams/",
     "views": {
         "completeView": {
-            "views": [],
+            "views": [
+                "tp_core",
+                "controller"
+            ],
             "ignoreModules": []
         }
     }
