@@ -1,7 +1,6 @@
 import astroid
 import sys
 import os
-import json
 
 from src.core.bt_file import BTFile, get_imported_modules
 from src.core.bt_module import BTModule

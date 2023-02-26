@@ -115,7 +115,6 @@ def plantuml_diagram_creator_sub_domains(
                     # this if statement is made so that we dont point to ourselves
                     if name_curr_node != name_dependency:
                         # used to detect dependency changes
-                        dep_str = name_curr_node + "-->" + name_dependency
                         if name_curr_node in dependencies_map:
                             dependency_list: list = dependencies_map[
                                 name_curr_node
@@ -217,7 +216,6 @@ def plantuml_diagram_creator_sub_domains(
             curr_node: BTModule = que.dequeue()
             for child in curr_node.child_module:
                 name_of_child = get_name_for_module_duplicate_checker(child)
-                x = 4
                 if (
                     child.path not in node_tracker_dependencies
                     and not ignore_modules_check(
@@ -343,7 +341,7 @@ def create_file(name):
 
 
 def get_name_for_module_duplicate_checker(module: BTModule):
-    if module.name_if_duplicate_exists != None:
+    if module.name_if_duplicate_exists is not None:
         return module.name_if_duplicate_exists
     return module.name
 

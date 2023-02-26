@@ -11,7 +11,9 @@ from src.core.bt_graph import BTGraph
 
 from src.plantuml.fetch_git import fetch_git_repo
 
-from src.plantuml.plantuml_file_creator import plantuml_diagram_creator_sub_domains
+from src.plantuml.plantuml_file_creator import (
+    plantuml_diagram_creator_sub_domains,
+)
 
 app = typer.Typer(add_completion=True)
 
@@ -28,7 +30,8 @@ def render(config_path: str = "mt_config.json"):
 
     for view_name, views in config.get("views").items():
         formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views["packages"]
+            os.path.join(config.get("rootFolder"), view)
+            for view in views["packages"]
         ]
         plantuml_diagram_creator_sub_domains(
             g.root_module,
@@ -48,7 +51,9 @@ def render_diff(config_path: str = "mt_config.json"):
         print("Created temporary directory:", tmp_dir)
         config = read_config_file(config_path)
 
-        fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
+        fetch_git_repo(
+            tmp_dir, config["github"]["url"], config["github"]["branch"]
+        )
 
         my_file = Path(tmp_dir + "/mt_config.json")
         if not my_file.is_file():
@@ -105,8 +110,6 @@ def read_config_file(config_path):
 def main():
     app()
 
-
-import sys
 
 if __name__ == "__main__":
     main()
