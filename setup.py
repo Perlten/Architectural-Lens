@@ -1,13 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-<<<<<<< HEAD
-    name="BT-diagrams",
-    version="0.0.11",
-=======
     name="MT-diagrams",
     version="0.0.1",
->>>>>>> master
     description="Thesis project",
     author="Nikolai Perlt",
     author_email="npe@itu.dk",
