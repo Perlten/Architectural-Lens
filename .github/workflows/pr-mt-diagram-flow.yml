@@ -1,6 +1,8 @@
 name: MT-diagrams
+
 on:
   - pull_request
+
 jobs:
   upload-MT-diagrams:
     runs-on: ubuntu-latest
@@ -15,4 +17,4 @@ jobs:
         with:
           config-path: "./mt_config.json"
           imgur-secret-id: ${{ secrets.IMGUR_CLIENT_ID }}
-          render-diff: "true"
+          render-diff: "false"
