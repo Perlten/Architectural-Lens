@@ -13,5 +13,6 @@ jobs:
       - id: mt-diagrams
         uses: Perlten/mt-gh-action@test
         with:
+          config-path: "./mt_config.json"
           imgur-secret-id: ${{ secrets.IMGUR_CLIENT_ID }}
           render-diff: "true"
