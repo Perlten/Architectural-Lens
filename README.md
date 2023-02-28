@@ -68,10 +68,13 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
     Example:
     
     ignorePackages: [
+
         - `"api/car",`  // This removes the package at the path "api/car" from the diagram
         - `"scooter",`  // This will remove any package with the name "scooter" from the diagram
         - `"test*"`     // This will remove any package with the name "test" in its path from the diagram
+    
     ]
+
     - `pathView`:
     If pathView is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
 
