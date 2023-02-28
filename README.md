@@ -57,13 +57,25 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
 - `saveLocation`: This is the folder where created views will be saved.
 - `views`: This contains a map with view names as keys and the following sub-fields: 
     - `packages`: This specifies the packages to include in the project. You provide this as a path to the folder from the rootFolder (e.g., "api.server" will point to a sub-package in the api package named server).
-    - `IgnorePackages`: Three different ways to ignore packages. Specify by name, this will exclude any package with a given name. Specify path to package. Specify a name*, this will remove any package with the name in its path.
-    Example: ignorePackaages:[
-        "api/car",     # This removes the package at the path "api/car" from the diagram
-        "scooter",     # This will remove any package with the name "scooter" from the diagram
-        "test*"        # This will remove any package with the name "test" in its path from diagram 
+    - `IgnorePackages`:
+    There are three different ways to ignore packages:
+
+    Specify by name: This will exclude any package with a given name.
+    Specify path to package: This will exclude a package at a given path.
+    Specify a name with an asterisk: This will remove any package with the name in its path.
+    Here is an example of how to use ignorePackages:
+
+    Example:
+    ignorePackages: [
+    "api/car",  // This removes the package at the path "api/car" from the diagram
+    "scooter",  // This will remove any package with the name "scooter" from the diagram
+    "test*"     // This will remove any package with the name "test" in its path from the diagram
     ]
-    - `pathView`: if set to false the package name and the end of a path will be the names in the diagram. e.g, api/car will have a moduled named "api" and one named "car". if set to true, the paths will be displayed instead. This would result in the packages being named: "api", "api/car".
+    - `pathView`:
+    If pathView is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
+
+    If pathView is set to true, the paths will be displayed instead. This would result in the packages being named: "api", "api/car".
+    
 
 ## CLI
 
