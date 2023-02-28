@@ -75,6 +75,8 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
     
     ]
 
+    
+
     - `pathView`:
     If pathView is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
 
