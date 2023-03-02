@@ -60,7 +60,7 @@
                             },
                             "description": "Defines the packages to ignore"
                         },
-                        "pathView": {
+                        "usePackagePathAsLabel": {
                             "type": "boolean",
                             "description": "If true, paths of each package will be displayed, if false only package name will be displayed"
                         }

@@ -41,7 +41,7 @@ Below you can see the basic config file created
         "completeView": {
             "packages": [],
             "ignorePackages": [],
-            "pathView": boolean
+            "usePackagePathAsLabel": true
         }
     }
 }
@@ -71,16 +71,16 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
 
         - "api/car",  // This removes the package at the path "api/car" from the diagram
         - "scooter",  // This will remove any package with the name "scooter" from the diagram
-        - "test*"     // This will remove any package with the name "test" in its path from the diagram
+        - "*test*"     // This will remove any package with the name "test" in its path from the diagram
     
     ]
 
     
 
-    - `pathView`:
-    If pathView is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
+    - `usePackagePathAsLabel`:
+    If usePackagePathAsLabel is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
 
-    If pathView is set to true, the paths will be displayed instead. This would result in the packages being named: "api", "api/car".
+    If usePackagePathAsLabel is set to true, the paths will be displayed instead. This would result in the packages being named: "api", "api/car".
     
 
 ## CLI

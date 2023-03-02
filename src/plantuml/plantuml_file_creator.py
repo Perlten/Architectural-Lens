@@ -392,10 +392,11 @@ def ignore_modules_check(list_ignore, module, root_folder):
     module = module[index:]
     for word in list_ignore:
         if word != "":
+            firstChar = word[0]
             lastChar = word[-1]
             # remove any module with word in its path
-            if lastChar == "*":
-                if word[:-1] in module:
+            if firstChar == "*" and lastChar == "*":
+                if word[1:-1] in module:
                     return True
             else:
                 # you cant have the module named "core" for instance
