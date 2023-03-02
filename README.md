@@ -74,7 +74,7 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
         - "*test*"     // This will remove any package with the name "test" in its path from the diagram
     
     ]
-```
+    ```
     
 
     - `usePackagePathAsLabel`:
