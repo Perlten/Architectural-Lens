@@ -59,6 +59,8 @@
             "options": [
                 "${workspaceFolder}/test_projects/test_project/mt_config.json",
                 "${workspaceFolder}/test_projects/zeeguu/mt_config.json",
+                "${workspaceFolder}/test_projects/mt-gh-action/test_project/mt_config.json",
+                "${workspaceFolder}/mt_config.json",
                 "${workspaceFolder}/test_projects/api/mt_config.json",
                 "${workspaceFolder}/test_projects/pandas/mt_config.json",
             ],
