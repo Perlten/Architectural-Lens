@@ -31,6 +31,8 @@ def render(config_path: str = "mt_config.json"):
     g = BTGraph()
     g.build_graph(config)
 
+    verify_config_options(config, g)
+
     project_name = config.get("name")
 
     for view_name, views in config.get("views").items():
@@ -72,9 +74,11 @@ def render_diff(config_path: str = "mt_config.json"):
 
         g_git = BTGraph()
         g_git.build_graph(config_git)
+        verify_config_options(config_git, g_git)
 
         g = BTGraph()
         g.build_graph(config)
+        verify_config_options(config, g)
 
         project_name = config.get("name")
 
@@ -116,7 +120,6 @@ def read_config_file(config_path):
 
     config["_config_path"] = os.path.dirname(config_path)
 
-    verify_config_options(config)
     return config
 
 
