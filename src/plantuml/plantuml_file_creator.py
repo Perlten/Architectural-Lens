@@ -393,7 +393,7 @@ def ignore_modules_check(
     list_ignore: list[str], module, root_folder
 ):  # TODO: remove root_folder if we go this direction
     path_manager = PathManagerSingleton()
-    module = path_manager.get_relative_path_from_project_root(module)
+    module = path_manager.get_relative_path_from_project_root(module, True)
     for ignore_package in list_ignore:
         if (
             ignore_package.startswith("*")
@@ -402,8 +402,8 @@ def ignore_modules_check(
         ):
             return True
 
-        # if ignore_package == module:
-        #     return True
+        if module.startswith(ignore_package):
+            return True
 
     return False
 
