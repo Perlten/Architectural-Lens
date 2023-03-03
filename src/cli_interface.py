@@ -7,6 +7,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from src.utils.path_manager_singleton import PathManagerSingleton
+from src.utils.functions import verify_config_options
 
 from src.core.bt_graph import BTGraph
 
@@ -23,6 +24,9 @@ app = typer.Typer(add_completion=True)
 def render(config_path: str = "mt_config.json"):
 
     config = read_config_file(config_path)
+
+    mt_path_manager = PathManagerSingleton()
+    mt_path_manager.setup(config)
 
     g = BTGraph()
     g.build_graph(config)
@@ -112,9 +116,7 @@ def read_config_file(config_path):
 
     config["_config_path"] = os.path.dirname(config_path)
 
-    mt_path_manager = PathManagerSingleton()
-    mt_path_manager.setup(config)
-
+    verify_config_options(config)
     return config
 
 
