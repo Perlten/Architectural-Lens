@@ -118,7 +118,7 @@ def read_config_file(config_path):
 
     jsonschema.validate(instance=config, schema=schema)
 
-    config["_config_path"] = os.path.dirname(config_path)
+    config["_config_path"] = os.path.dirname(os.path.abspath(config_path))
 
     return config
 
