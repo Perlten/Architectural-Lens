@@ -46,7 +46,7 @@ class PathManagerSingleton:
         config_path = config_path.as_posix()
         config_root_folder_path.as_posix()
 
-        if git_config:
+        if not git_config:
             self._config_path = config_path
             self._config_root_folder_path = config_root_folder_path
         else:
