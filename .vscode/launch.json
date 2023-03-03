@@ -5,21 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "test",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/cli_interface.py",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "render"
-            ],
-            "env": {
-                "PYTHONPATH": "${workspaceFolder}",
-                "MT_DEBUG": "true"
-            }
-        },
-        {
             "name": "CLI Render",
             "type": "python",
             "request": "launch",
