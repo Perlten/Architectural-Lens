@@ -17,7 +17,8 @@
                 "${input:config_path}"
             ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "MT_DEBUG": "true"
             }
         },
         {
@@ -33,7 +34,8 @@
                 "${input:config_path}"
             ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "MT_DEBUG": "true"
             }
         },
         {
@@ -47,7 +49,8 @@
                 "--help"
             ],
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "MT_DEBUG": "true"
             }
         },
     ],

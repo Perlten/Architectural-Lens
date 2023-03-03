@@ -11,13 +11,15 @@ class PathManagerSingleton:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def setup(self, config: dict, git_config=None, append_root_folder=True):
+    def setup(self, config: dict, git_config=None, append_root_folder=False):
         self._config_path = self._get_path(config, append_root_folder)
         self._git_config_path = self._get_path(git_config, append_root_folder)
 
     def get_relative_path_from_project_root(self, path: str):
         if self._config_path is None:
-            raise Exception("Should call setup method before any other function")
+            raise Exception(
+                "Should call setup method before any other function"
+            )
         try:
             return Path(path).relative_to(self._config_path).as_posix()
         except Exception:

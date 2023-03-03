@@ -300,6 +300,13 @@ def plantuml_diagram_creator_sub_domains(
                 ]
 
             for dep in list_of_new_dependencies:
+                path_manager = PathManagerSingleton()
+                dep_name = path_manager.get_relative_path_from_project_root(
+                    dep.path
+                )
+                if not path_view:
+                    dep_name = dep.name
+
                 not_found_partner = True
                 for dep_old in list_of_old_dependencies:
                     if dep.name == dep_old.name:
@@ -311,20 +318,20 @@ def plantuml_diagram_creator_sub_domains(
                         diagram_name_txt, inplace=True
                     ):
                         print(
-                            line.replace(
+                            line.replace(  # TOOD: this replace does not work
                                 '"'
                                 + dependency
                                 + '"'
                                 + "-->"
                                 + '"'
-                                + dep.name
+                                + dep_name
                                 + '"',
                                 '"'
                                 + dependency
                                 + '"'
                                 + "-->"
                                 + '"'
-                                + dep.name
+                                + dep_name
                                 + '" #green',
                             ),
                             end="",
@@ -347,8 +354,8 @@ def plantuml_diagram_creator_sub_domains(
     elif compare_graph_root is None:
         create_file(diagram_name_txt)
 
-    # comment in when done, but leaving it in atm for developing purposes
-    os.remove(diagram_name_txt)
+    if not os.getenv("MT_DEBUG"):
+        os.remove(diagram_name_txt)
 
 
 def find_red_dependencies(
@@ -443,8 +450,8 @@ def ignore_modules_check(
         ):
             return True
 
-        if ignore_package == module:
-            return True
+        # if ignore_package == module:
+        #     return True
 
     return False
 
