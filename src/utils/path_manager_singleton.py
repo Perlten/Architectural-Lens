@@ -17,9 +17,7 @@ class PathManagerSingleton:
 
     def get_relative_path_from_project_root(self, path: str):
         if self._config_path is None:
-            raise Exception(
-                "Should call setup method before any other function"
-            )
+            raise Exception("Should call setup method before any other function")
         try:
             return Path(path).relative_to(self._config_path).as_posix()
         except Exception:
