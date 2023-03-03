@@ -54,11 +54,11 @@ def render_diff(config_path: str = "mt_config.json"):
 
         fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
 
-        my_file = Path(tmp_dir + "/mt_config.json")
+        my_file = Path(tmp_dir + f"/{config_path}")
         if not my_file.is_file():
-            shutil.copyfile(config_path, tmp_dir + "/mt_config.json")
+            shutil.copyfile(config_path, tmp_dir + f"/{config_path}")
 
-        config_git = read_config_file(tmp_dir + "/mt_config.json")
+        config_git = read_config_file(tmp_dir + f"/{config_path}")
 
         path_manager = PathManagerSingleton()
         path_manager.setup(config, config_git)
