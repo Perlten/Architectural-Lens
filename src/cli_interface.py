@@ -109,7 +109,7 @@ def create_config(config_path="./mt_config.json"):
 def create_action():
     action_url = "https://raw.githubusercontent.com/Perlten/MT-diagrams/master/.github/workflows/pr-mt-diagrams.yml"
     action_path = Path(".github/workflows/pr-mt-diagrams.yml")
-    typer.echo(f"Creating the action at {action_path}", color=typer.colors.GREEN)
+    typer.secho(f"Creating the action at {action_path}", fg="green")
     action_path.parent.mkdir(parents=True, exist_ok=True)
     action = requests.get(action_url).text
 
