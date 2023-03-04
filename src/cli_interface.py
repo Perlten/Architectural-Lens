@@ -60,7 +60,7 @@ def render_diff(config_path: str = "mt_config.json"):
 
         fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
 
-        my_file = Path(os.path.join(tmp_dir, config_path))
+        my_file = Path(os.path.join(tmp_dir, "mt_config.json"))
         if not my_file.is_file():
             shutil.copyfile(config_path, os.path.join(tmp_dir, "mt_config.json"))
 
