@@ -9,16 +9,12 @@ def verify_config_options(config: dict, graph: BTGraph):
     for view_data in views.values():
         packages = view_data.get("packages")
         ignore_packages = [
-            element
-            for element in view_data.get("ignorePackages")
-            if "*" not in element
+            element for element in view_data.get("ignorePackages") if "*" not in element
         ]
 
         total_packages = packages + ignore_packages
         if os.name == "nt":
-            total_packages = [
-                element.replace("/", "\\") for element in total_packages
-            ]
+            total_packages = [element.replace("/", "\\") for element in total_packages]
 
         for package in total_packages:
             t = os.path.join(root_path, package)
