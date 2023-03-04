@@ -17,16 +17,16 @@ variable "plantuml_size_limit" {
 
 }
 
-data "azurerm_service_plan" "name" {
+data "azurerm_service_plan" "main" {
   name                = "mt-diagram-service-plan"
   resource_group_name = "mt-diagrams"
 }
 
 resource "azurerm_linux_web_app" "main" {
   name                = "mt-plantuml-app-service"
-  resource_group_name = data.azurerm_service_plan.name.resource_group_name
-  location            = data.azurerm_service_plan.name.location
-  service_plan_id     = data.azurerm_service_plan.name.id
+  resource_group_name = data.azurerm_service_plan.main.resource_group_name
+  location            = data.azurerm_service_plan.main.location
+  service_plan_id     = data.azurerm_service_plan.main.id
 
   https_only = true
 
