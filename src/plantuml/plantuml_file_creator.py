@@ -65,7 +65,9 @@ def plantuml_diagram_creator_sub_domains(
         # adds all modules we want in our subgraph
         for child in curr_node.child_module:
             if child.path not in node_tracker:
-                duplicate_name_check(name_tracker, child, node_tracker, None, True)
+                duplicate_name_check(
+                    name_tracker, child, node_tracker, None, True
+                )
                 que.enqueue(child)
                 node_tracker[child.path] = child
                 name_tracker[child.name] = child
@@ -78,7 +80,9 @@ def plantuml_diagram_creator_sub_domains(
                         f.write(
                             diagram_type
                             + '"'
-                            + get_name_for_module_duplicate_checker(child, path_view)
+                            + get_name_for_module_duplicate_checker(
+                                child, path_view
+                            )
                             + '"'
                             + "\n"
                         )
@@ -98,7 +102,9 @@ def plantuml_diagram_creator_sub_domains(
                 node_tracker_dependencies[child.path] = True
 
         dependencies: set[BTModule] = curr_node.get_module_dependencies()
-        name_curr_node = get_name_for_module_duplicate_checker(curr_node, path_view)
+        name_curr_node = get_name_for_module_duplicate_checker(
+            curr_node, path_view
+        )
 
         if not ignore_modules_check(ignore_packages, curr_node.path):
             for dependency in dependencies:
@@ -115,13 +121,19 @@ def plantuml_diagram_creator_sub_domains(
                         if name_curr_node != name_dependency:
                             # used to detect dependency changes
                             if name_curr_node in dependencies_map:
-                                dependency_list: list = dependencies_map[name_curr_node]
+                                dependency_list: list = dependencies_map[
+                                    name_curr_node
+                                ]
                                 dependency_list.append(dependency)
-                                dependencies_map[name_curr_node] = dependency_list
+                                dependencies_map[
+                                    name_curr_node
+                                ] = dependency_list
                             else:
                                 dependency_list = []
                                 dependency_list.append(dependency)
-                                dependencies_map[name_curr_node] = dependency_list
+                                dependencies_map[
+                                    name_curr_node
+                                ] = dependency_list
 
                             ##
                             f = open(diagram_name_txt, "a")
@@ -197,7 +209,9 @@ def plantuml_diagram_creator_sub_domains(
                     f.write(
                         diagram_type
                         + '"'
-                        + get_name_for_module_duplicate_checker(node, path_view, True)
+                        + get_name_for_module_duplicate_checker(
+                            node, path_view, True
+                        )
                         + '" #green'
                         + "\n"
                     )
@@ -223,7 +237,9 @@ def plantuml_diagram_creator_sub_domains(
                 name_curr_node = get_name_for_module_duplicate_checker(
                     curr_node, path_view, True
                 )
-                dependencies: set[BTModule] = curr_node.get_module_dependencies()
+                dependencies: set[
+                    BTModule
+                ] = curr_node.get_module_dependencies()
 
                 dependencies_map_main_graph[name_curr_node] = dependencies
 
@@ -233,10 +249,12 @@ def plantuml_diagram_creator_sub_domains(
 
                 for dependency in list_of_red_dependencies:
                     if not ignore_modules_check(
-                        ignore_packages, dependency.path, root_folder
+                        ignore_packages, dependency.path
                     ):
-                        name_dependency = get_name_for_module_duplicate_checker(
-                            dependency, path_view, True
+                        name_dependency = (
+                            get_name_for_module_duplicate_checker(
+                                dependency, path_view, True
+                            )
                         )
                         if check_if_module_should_be_in_filtered_graph(
                             dependency.path, packages
@@ -265,11 +283,15 @@ def plantuml_diagram_creator_sub_domains(
 
             list_of_old_dependencies = []
             if dependency in dependencies_map_main_graph:
-                list_of_old_dependencies = dependencies_map_main_graph[dependency]
+                list_of_old_dependencies = dependencies_map_main_graph[
+                    dependency
+                ]
 
             for dep in list_of_new_dependencies:
                 path_manager = PathManagerSingleton()
-                dep_name = path_manager.get_relative_path_from_project_root(dep.path)
+                dep_name = path_manager.get_relative_path_from_project_root(
+                    dep.path
+                )
                 if not path_view:
                     dep_name = dep.name
 
@@ -280,10 +302,18 @@ def plantuml_diagram_creator_sub_domains(
                         break
                 if not_found_partner:
                     diff_checker = True
-                    for line in fileinput.input(diagram_name_txt, inplace=True):
+                    for line in fileinput.input(
+                        diagram_name_txt, inplace=True
+                    ):
                         print(
                             line.replace(  # TOOD: this replace does not work
-                                '"' + dependency + '"' + "-->" + '"' + dep_name + '"',
+                                '"'
+                                + dependency
+                                + '"'
+                                + "-->"
+                                + '"'
+                                + dep_name
+                                + '"',
                                 '"'
                                 + dependency
                                 + '"'
@@ -316,7 +346,9 @@ def plantuml_diagram_creator_sub_domains(
         os.remove(diagram_name_txt)
 
 
-def find_red_dependencies(new_dependencies, node_name, old_dependencies: set[BTModule]):
+def find_red_dependencies(
+    new_dependencies, node_name, old_dependencies: set[BTModule]
+):
     res = []
 
     if node_name not in new_dependencies:
@@ -340,10 +372,14 @@ def create_file(name):
     os.system(python_executable + " -m plantuml " + name)
 
 
-def get_name_for_module_duplicate_checker(module: BTModule, path, diff_graph=False):
+def get_name_for_module_duplicate_checker(
+    module: BTModule, path, diff_graph=False
+):
     if path:
         path_manager = PathManagerSingleton()
-        module_split = path_manager.get_relative_path_from_project_root(module.path)
+        module_split = path_manager.get_relative_path_from_project_root(
+            module.path
+        )
         return module_split
     if module.name_if_duplicate_exists is not None:
         return module.name_if_duplicate_exists
@@ -362,13 +398,17 @@ def duplicate_name_check(
         if not curr_node.name_if_duplicate_exists:
             if curr_node.name in node_names:
                 curr_node_split = split_path(curr_node.path)
-                curr_node_name = curr_node_split[-2] + "/" + curr_node_split[-1]
+                curr_node_name = (
+                    curr_node_split[-2] + "/" + curr_node_split[-1]
+                )
                 curr_node.name_if_duplicate_exists = curr_node_name
     else:
         if first:
             if curr_node.name in node_names:
                 curr_node_split = split_path(curr_node.path)
-                curr_node_name = curr_node_split[-2] + "/" + curr_node_split[-1]
+                curr_node_name = (
+                    curr_node_split[-2] + "/" + curr_node_split[-1]
+                )
                 curr_node.name_if_duplicate_exists = curr_node_name
 
 
