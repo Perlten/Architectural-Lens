@@ -273,8 +273,7 @@ def plantuml_diagram_creator_sub_domains(
                 list_of_old_dependencies = dependencies_map_main_graph[dependency]
 
             for dep in list_of_new_dependencies:
-                path_manager = PathManagerSingleton()
-                dep_name = path_manager.get_relative_path_from_project_root(dep.path)
+                dep_name = get_name_for_module_duplicate_checker(dep, path_view)
                 if not path_view:
                     dep_name = dep.name
 
@@ -283,27 +282,18 @@ def plantuml_diagram_creator_sub_domains(
                     if dep.name == dep_old.name:
                         not_found_partner = False
                         break
+
                 if not_found_partner:
                     diff_checker = True
                     for line in fileinput.input(diagram_name_txt, inplace=True):
+
                         print(
                             line.replace(  # TOOD: this replace does not work
-                                '"' + dependency + '"' + "-->" + '"' + dep_name + '"',
-                                '"'
-                                + dependency
-                                + '"'
-                                + "-->"
-                                + '"'
-                                + dep_name
-                                + '" #green',
+                                f'"{dependency}"-->"{dep_name}"',
+                                f'"{dependency}"-->"{dep_name}" #green',
                             ),
                             end="",
                         )
-                    # f = open(diagram_name_txt, "a")
-                    # f.write(
-                    #     '"' + dependency + '"' + "-->" + '"' + dep.name + '" #green' + "\n"
-                    # )
-                    # f.close()
 
     #########################################################################################################
     # ends the uml
@@ -352,22 +342,13 @@ def create_file(name):
 def get_name_for_module_duplicate_checker(module: BTModule, path):
     if path:
         path_manager = PathManagerSingleton()
-        module_split = path_manager.get_relative_path_from_project_root(module.path)
-        return remove_root(module_split)
+        module_split = path_manager.get_relative_path_from_project_root(
+            module.path, True
+        )
+        return module_split
     if module.name_if_duplicate_exists is not None:
-        return remove_root(module.name_if_duplicate_exists)
+        return module.name_if_duplicate_exists
     return module.name
-
-
-def remove_root(path):
-    if "/" in path:
-        res = path.split("/")[1:]
-        if len(res) > 1:
-            res = "/".join(res)
-        else:
-            res = res[0]
-        return res
-    return path
 
 
 def duplicate_name_check(
@@ -449,6 +430,7 @@ def old_ignore_modules_check(list_ignore, module, root_folder):
     return False
 
 
+# tp_src/api
 def check_if_allowed_module_is_root(allowed_module):
     if type(allowed_module) == str:
         if "/" in allowed_module:

@@ -139,7 +139,8 @@ def read_config_file(config_path):
 
     schema = requests.get(schema_url).json()
 
-    jsonschema.validate(instance=config, schema=schema)
+    if not os.getenv("MT_DEBUG"):
+        jsonschema.validate(instance=config, schema=schema)
 
     config["_config_path"] = os.path.dirname(os.path.abspath(config_path))
 
