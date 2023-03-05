@@ -21,16 +21,16 @@ provider "azurerm" {
   tenant_id       = var.tenant_id
 }
 
+variable "subscription_id" { type = string }
+variable "client_id" { type = string }
+variable "client_secret" { type = string }
+variable "tenant_id" { type = string }
+
 
 variable "plantuml_size_limit" {
   type    = string
   default = "8192"
 }
-
-variable "subscription_id" { type = string }
-variable "client_id" { type = string }
-variable "client_secret" { type = string }
-variable "tenant_id" { type = string }
 
 data "azurerm_service_plan" "main" {
   name                = "mt-diagram-service-plan"
@@ -50,6 +50,8 @@ resource "azurerm_linux_web_app" "main" {
     PLANTUML_LIMIT_SIZE             = var.plantuml_size_limit
     DOCKER_REGISTRY_SERVER_USERNAME = ""
     DOCKER_REGISTRY_SERVER_PASSWORD = ""
+    DOCKER_ENABLE_CI                = true
+    DOCKER_REGISTRY_SERVER_URL      = "https://index.docker.io/v1"
   }
   site_config {
     always_on = false
