@@ -4,8 +4,9 @@ MT-diagrams is a software tool designed for Python systems that enables you to c
 
 For illustration purposes, we'll use the [Zeeguu](https://github.com/zeeguu/api) GitHub project as an example. The following diagram highlights the core packages included in the project.
 
-![Zeeguu core view](.github/readme/zeeguu-coreView.png)
+Note: When running the tool for the first time in a while, it might take a while to generate a diagram, due to our plantuml server currently being hosted on a free plan. Once the service is awake, the speed increases.
 
+![Zeeguu core view](.github/readme/zeeguu-coreView.png)
 
 In addition, the system can identify and highlight the differences between your working branch and a specified remote branch, including added or removed dependencies, as well as created or deleted packages.
 
