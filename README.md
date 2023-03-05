@@ -39,7 +39,7 @@ Below you can see the basic config file created
     },
     "saveLocation": "./diagrams/",
     "showDependencyCount": true,
-    "packageColor": "GoldenRod",
+    "packageColor": "Azure",
     "views": {
         "completeView": {
             "packages": [],
