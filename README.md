@@ -9,7 +9,7 @@ For illustration purposes, we'll use the [Zeeguu](https://github.com/zeeguu/api)
 
 In addition, the system can identify and highlight the differences between your working branch and a specified remote branch, including added or removed dependencies, as well as created or deleted packages.
 
-To demonstrate this functionality, take a look at the following view that illustrates the differences between two branches in the Zeeguu project.
+To demonstrate this functionality, take a look at the following view that illustrates the differences between a development branch and the main branch of zeegu, on the development branch we can see that some dependencies have been added (green arrows), and some deleted (red arrows).
 
 ![Zeeguu diff view](.github/readme/zeeguu-diffview.png)
 
@@ -46,9 +46,9 @@ Below you can see the basic config file created
         }
     }
 }
+```
 
-
-For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`.
+For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`, name being the name of your project, and rootFolder the folder containing your source code, starting from your project root.
 
 - `name`: This value will be prefixed to all your diagrams.
 - `rootFolder`: This points to the folder containing the root packages in your system (usually named src or similar).
@@ -91,7 +91,7 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
     ```
     
 
-    - `usePackagePathAsLabel`:
+    - `usePackagePathAsLabel` (Optional: Set to true  by default):
     If usePackagePathAsLabel is set to false, the package name and the end of a path will be the names in the diagram. For example, api/car will have a module named "api" and one named "car".
 
     If usePackagePathAsLabel is set to true, the paths will be displayed instead. This would result in the packages being named: "api", "api/car".
@@ -109,4 +109,4 @@ The CLI tool has four available commands:
 
 - `mt-diagrams create-config`: This command generates a basic configuration file defining a view that showcases all packages included in the system. This command is useful for quickly generating a configuration file to get started with the tool. This command should be run in the root of your project
 
-- `mt-diagrams create-action`: This creates all of the nessecary files for diagrams to be generated when creating a pull request. When creating a pull request, the branch you're working on will display the differences in comparison to the branch specified in the github["branch"] in the above config.
+- `mt-diagrams create-action`: This creates all of the necessary files for diagrams to be generated when creating a pull request. When creating a pull request, the branch you're working on will display the differences in comparison to the branch specified in the github["branch"] in the above config.
