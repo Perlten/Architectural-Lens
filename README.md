@@ -39,6 +39,7 @@ Below you can see the basic config file created
     },
     "saveLocation": "./diagrams/",
     "showDependencyCount": true,
+    "packageColor": "GoldenRod",
     "views": {
         "completeView": {
             "packages": [],
@@ -58,6 +59,7 @@ For mt-diagrams to work you will need to fill the fields `name` and `rootFolder`
     - `branch`: The branch for comparison
 - `saveLocation`: This is the folder where created views will be saved.
 - `showDependencyCount`: This is a boolean, if set to True the dependency arrows in the diagram will show how many imports there are between the packages.
+- `packageColor`: Color of packages, you can choose from "GoldenRod" or "Azure".
 - `views`: This contains a map with view names as keys and the following sub-fields: 
     - `packages`: This specifies the packages to include in the project. Each path will start at the root_folder, and any path given must exist in the project. If you provide the path "api/test", it means that you want to include the rootFolder/api/test in the graph.
     When entering paths in packages, you are telling the diagram that you only want to include those packages and their sub-packages and dependencies.
