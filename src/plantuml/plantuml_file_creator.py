@@ -4,6 +4,7 @@ from pathlib import Path
 import fileinput
 import sys
 from src.utils.path_manager_singleton import PathManagerSingleton
+from src.utils.config_manager_singleton import ConfigManagerSingleton
 
 # list of subdomains is a set of strings, could be:
 # "test_project/tp_src/api"
@@ -123,7 +124,6 @@ def plantuml_diagram_creator_sub_domains(
                                 dependency_list.append(dependency)
                                 dependencies_map[name_curr_node] = dependency_list
 
-                            ##
                             f = open(diagram_name_txt, "a")
                             f.write(
                                 '"'
@@ -132,7 +132,7 @@ def plantuml_diagram_creator_sub_domains(
                                 + "-->"
                                 + '"'
                                 + name_dependency
-                                + '"'
+                                + f'"{get_dependency_string(curr_node, dependency)}'
                                 + "\n"
                             )
                             f.close()
@@ -252,7 +252,7 @@ def plantuml_diagram_creator_sub_domains(
                                     + "-->"
                                     + '"'
                                     + name_dependency
-                                    + '" #red'
+                                    + f'" #red {get_dependency_string(curr_node, dependency)}'
                                     + "\n"
                                 )
                                 f.close()
@@ -280,7 +280,7 @@ def plantuml_diagram_creator_sub_domains(
                     diff_checker = True
                     for line in fileinput.input(diagram_name_txt, inplace=True):
                         print(
-                            line.replace(  # TOOD: this replace does not work
+                            line.replace(
                                 '"' + dependency + '"' + "-->" + '"' + dep_name + '"',
                                 '"'
                                 + dependency
@@ -292,11 +292,6 @@ def plantuml_diagram_creator_sub_domains(
                             ),
                             end="",
                         )
-                    # f = open(diagram_name_txt, "a")
-                    # f.write(
-                    #     '"' + dependency + '"' + "-->" + '"' + dep.name + '" #green' + "\n"
-                    # )
-                    # f.close()
 
     #########################################################################################################
     # ends the uml
@@ -387,9 +382,7 @@ def was_node_in_original_graph(node: BTModule, path_tracker, root_folder):
         return False
 
 
-def ignore_modules_check(
-    list_ignore: list[str], module
-):  # TODO: remove root_folder if we go this direction
+def ignore_modules_check(list_ignore: list[str], module):
     path_manager = PathManagerSingleton()
     module = path_manager.get_relative_path_from_project_root(module, True)
     for ignore_package in list_ignore:
@@ -462,6 +455,14 @@ def split_path(path) -> list[str]:
 
     directories.reverse()
     return directories
+
+
+def get_dependency_string(module: BTModule, dependency_module: BTModule):
+    config_manager = ConfigManagerSingleton()
+    if config_manager.show_dependency_count:
+        dependency_count = module.get_dependency_count(dependency_module)
+        return f": {dependency_count}"
+    return ""
 
 
 class Queue:
