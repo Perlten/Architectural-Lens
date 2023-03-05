@@ -10,4 +10,3 @@ class ConfigManagerSingleton:
 
     def setup(self, config: dict):
         self.show_dependency_count = config.get("ShowDependencyCount", True)
-        print("test")
