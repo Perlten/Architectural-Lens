@@ -24,6 +24,9 @@ def plantuml_diagram_creator_sub_domains(
 ):
     create_directory_if_not_exist(save_location)
 
+    global root_module
+    root_module = root_folder
+
     diagram_type = "package "
     diagram_name = diagram_name.replace(" ", "_")
     diagram_name_txt = ""
@@ -48,16 +51,23 @@ def plantuml_diagram_creator_sub_domains(
 
     # adding root to the drawing IF its meant to be in there
 
-    if check_if_module_should_be_in_filtered_graph(root_node.path, packages):
+    if check_if_module_should_be_in_filtered_graph(root_node, packages):
         f = open(diagram_name_txt, "a")
         f.write("@startuml \n")
-        f.write("title " + diagram_name + "\n")
-        f.write(diagram_type + root_node.name + "\n")
+        f.write("skinparam backgroundColor GhostWhite" + "\n")
+        f.write(
+            "title **Title**: "
+            + diagram_name
+            + ". **Rootfolder**: "
+            + root_folder
+            + "\n"
+        )
         f.close()
     else:
         f = open(diagram_name_txt, "a")
         f.write("@startuml \n")
-        f.write("title " + diagram_name + "\n")
+        f.write("skinparam backgroundColor GhostWhite" + "\n")
+        f.write("title " + diagram_name + " \n")
         f.close()
 
     while not que.isEmpty():
@@ -75,8 +85,10 @@ def plantuml_diagram_creator_sub_domains(
 
                 if not ignore_modules_check(ignore_packages, child.path):
                     if check_if_module_should_be_in_filtered_graph(
-                        child.path, packages
+                        child, packages
                     ):
+                        config_manager = ConfigManagerSingleton()
+                        package_color = config_manager.package_color
                         f = open(diagram_name_txt, "a")
                         f.write(
                             diagram_type
@@ -84,7 +96,7 @@ def plantuml_diagram_creator_sub_domains(
                             + get_name_for_module_duplicate_checker(
                                 child, path_view
                             )
-                            + '"'
+                            + f'"#{package_color}'
                             + "\n"
                         )
                         f.close()
@@ -114,9 +126,9 @@ def plantuml_diagram_creator_sub_domains(
                         dependency, path_view
                     )
                     if check_if_module_should_be_in_filtered_graph(
-                        dependency.path, packages
+                        dependency, packages
                     ) and check_if_module_should_be_in_filtered_graph(
-                        curr_node.path, packages
+                        curr_node, packages
                     ):
                         # this if statement is made so that we dont point to ourselves
                         if name_curr_node != name_dependency:
@@ -171,7 +183,7 @@ def plantuml_diagram_creator_sub_domains(
                             main_nodes, child, node_tracker, root_folder, True
                         )
                         if check_if_module_should_be_in_filtered_graph(
-                            child.path, packages, compare_graph_root
+                            child, packages
                         ):
 
                             main_nodes[child.name] = child
@@ -199,7 +211,7 @@ def plantuml_diagram_creator_sub_domains(
         for child in name_tracker.values():
             # children from original graph
             if check_if_module_should_be_in_filtered_graph(
-                child.path, packages
+                child, packages
             ) and not ignore_modules_check(ignore_packages, child.path):
                 node: BTModule = child
                 name = node.name
@@ -257,9 +269,9 @@ def plantuml_diagram_creator_sub_domains(
                             )
                         )
                         if check_if_module_should_be_in_filtered_graph(
-                            dependency.path, packages
+                            dependency, packages
                         ) and check_if_module_should_be_in_filtered_graph(
-                            curr_node.path, packages
+                            curr_node, packages
                         ):
                             # this if statement is made so that we dont point to ourselves
                             if name_curr_node != name_dependency:
@@ -288,9 +300,8 @@ def plantuml_diagram_creator_sub_domains(
                 ]
 
             for dep in list_of_new_dependencies:
-                path_manager = PathManagerSingleton()
-                dep_name = path_manager.get_relative_path_from_project_root(
-                    dep.path
+                dep_name = get_name_for_module_duplicate_checker(
+                    dep, path_view
                 )
                 if not path_view:
                     dep_name = dep.name
@@ -300,27 +311,17 @@ def plantuml_diagram_creator_sub_domains(
                     if dep.name == dep_old.name:
                         not_found_partner = False
                         break
+
                 if not_found_partner:
                     diff_checker = True
                     for line in fileinput.input(
                         diagram_name_txt, inplace=True
                     ):
+
                         print(
-                            line.replace(
-                                '"'
-                                + dependency
-                                + '"'
-                                + "-->"
-                                + '"'
-                                + dep_name
-                                + '"',
-                                '"'
-                                + dependency
-                                + '"'
-                                + "-->"
-                                + '"'
-                                + dep_name
-                                + '" #green',
+                            line.replace(  # TOOD: this replace does not work
+                                f'"{dependency}"-->"{dep_name}"',
+                                f'"{dependency}"-->"{dep_name}" #green',
                             ),
                             end="",
                         )
@@ -377,7 +378,7 @@ def get_name_for_module_duplicate_checker(module: BTModule, path):
     if path:
         path_manager = PathManagerSingleton()
         module_split = path_manager.get_relative_path_from_project_root(
-            module.path
+            module.path, True
         )
         return module_split
     if module.name_if_duplicate_exists is not None:
@@ -466,17 +467,50 @@ def old_ignore_modules_check(list_ignore, module, root_folder):
     return False
 
 
+# tp_src/api
+def check_if_allowed_module_is_root(allowed_module):
+    if type(allowed_module) == str:
+        if "/" in allowed_module:
+            splits = allowed_module.split("/")
+            if splits[0] == root_module and splits[1] == root_module:
+                return splits[0]
+    else:
+        if "/" in allowed_module["packagePath"]:
+            splits = allowed_module["packagePath"].split("/")
+            if splits[0] == root_module and splits[1] == root_module:
+                allowed_module["packagePath"] = splits[0]
+                return allowed_module
+    return allowed_module
+
+
 def check_if_module_should_be_in_filtered_graph(
-    module, allowed_modules, compare_graph_root=None
+    module: BTModule, allowed_modules
 ):
     if len(allowed_modules) == 0:
         return True
-    if compare_graph_root is not None:
-        path_manager = PathManagerSingleton()
-        module = path_manager.get_relative_path_from_project_root(module)
+    path_manager = PathManagerSingleton()
+    module_path = path_manager.get_relative_path_from_project_root(module.path)
     for module_curr in allowed_modules:
-        if module_curr in module:
-            return True
+        module_curr = check_if_allowed_module_is_root(module_curr)
+        # this means that we allow all of the sub system, no depth
+        if type(module_curr) == str:
+            if module_curr in module_path:
+                return True
+        # if we get here, it means that it is a specified object, at which point we must check for depth
+        else:
+            path = module_curr["packagePath"]
+            depth = module_curr["depth"]
+            if path == module_path:
+                module.depth = depth
+                return True
+            else:
+                if module.parent_module is not None:
+                    if module.parent_module.depth is not None:
+                        if path in module_path:
+                            if module.parent_module.depth > 0:
+                                module.depth = module.parent_module.depth - 1
+                                return True
+
     return False
 
 
