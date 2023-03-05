@@ -36,9 +36,21 @@ def render(config_path: str = "mt_config.json"):
     project_name = config.get("name")
 
     for view_name, views in config.get("views").items():
-        formatted_views = [
-            os.path.join(config.get("rootFolder"), view) for view in views["packages"]
-        ]
+        # formatted_views = [
+        #     os.path.join(config.get("rootFolder"), view) for view in views["packages"]
+        # ]
+
+        formatted_views = []
+        for view_name, views in config.get("views").items():
+            for view in views["packages"]:
+                if type(view) == str:
+                    formatted_views.append(os.path.join(config.get("rootFolder"), view))
+                else:
+                    view["packagePath"] = os.path.join(
+                        config.get("rootFolder"), view["packagePath"]
+                    )
+                    formatted_views.append(view)
+
         plantuml_diagram_creator_sub_domains(
             g.root_module,
             f"{project_name}-{view_name}",
