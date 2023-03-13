@@ -46,16 +46,16 @@ def render(config_path: str = "mt_config.json"):
                 )
                 formatted_views.append(view)
 
-    plantuml_diagram_creator_sub_domains(
-        g.root_module,
-        f"{project_name}-{view_name}",
-        formatted_views,
-        views["ignorePackages"],
-        None,
-        config.get("rootFolder"),
-        views.get("usePackagePathAsLabel", True),
-        save_location=config.get("saveLocation"),
-    )
+        plantuml_diagram_creator_sub_domains(
+            g.root_module,
+            f"{project_name}-{view_name}",
+            formatted_views,
+            views["ignorePackages"],
+            None,
+            config.get("rootFolder"),
+            views.get("usePackagePathAsLabel", True),
+            save_location=config.get("saveLocation"),
+        )
 
 
 @app.command()
