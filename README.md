@@ -69,7 +69,7 @@ Here are two views of the 'zeeguu-api' project that we will be using as examples
 
 
 - A view of the system where everything except "core" and its sub-packages has been scraped away:
-![Zeeguu core view](.github/readme/zeeguu-coreView.png)
+![Zeeguu core view](.github/readme/zeeguu-coreViewxx.png)
 
 
 Here is an edited version of the "mt-config.json" file for the 'zeeguu-api' project, which represents the first two views we created earlier, along with comments explaining each field briefly:
