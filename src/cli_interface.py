@@ -36,27 +36,26 @@ def render(config_path: str = "mt_config.json"):
     project_name = config.get("name")
 
     for view_name, views in config.get("views").items():
-        for view_name, views in config.get("views").items():
-            formatted_views = []
-            for view in views["packages"]:
-                if type(view) == str:
-                    formatted_views.append(config.get("rootFolder") + f"/{view}")
-                else:
-                    view["packagePath"] = (
-                        config.get("rootFolder") + "/" + view["packagePath"]
-                    )
-                    formatted_views.append(view)
+        formatted_views = []
+        for view in views["packages"]:
+            if type(view) == str:
+                formatted_views.append(config.get("rootFolder") + f"/{view}")
+            else:
+                view["packagePath"] = (
+                    config.get("rootFolder") + "/" + view["packagePath"]
+                )
+                formatted_views.append(view)
 
-        plantuml_diagram_creator_sub_domains(
-            g.root_module,
-            f"{project_name}-{view_name}",
-            formatted_views,
-            views["ignorePackages"],
-            None,
-            config.get("rootFolder"),
-            views.get("usePackagePathAsLabel", True),
-            save_location=config.get("saveLocation"),
-        )
+    plantuml_diagram_creator_sub_domains(
+        g.root_module,
+        f"{project_name}-{view_name}",
+        formatted_views,
+        views["ignorePackages"],
+        None,
+        config.get("rootFolder"),
+        views.get("usePackagePathAsLabel", True),
+        save_location=config.get("saveLocation"),
+    )
 
 
 @app.command()
