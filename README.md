@@ -1,5 +1,7 @@
 # MT-Diagrams (Temporary name)
 
+## Currently this only works on Unix systems, Windows is being worked on!
+
 MT-Diagrams is a Python software tool that generates customizable visual package views, showcasing the packages in your system and their dependencies. It offers the flexibility to include or exclude specific packages to suit your requirements for comprehensible views.
 
 Moreover, MT-Diagrams can highlight the differences between your working branch and a specified remote branch, including added or removed dependencies and created or deleted packages, by using green and red highlighting.
@@ -234,4 +236,4 @@ To display the difference views in your pull requests, run the command:
 
 This command generates the necessary files in the .github folder, creating it if it doesn't already exist. Once this is done, you can create a pull request, and the difference view will be visible to the reviewer, as shown in the image below. Note that if there are no changes relative to the specified branch, the difference view will not be generated.
 
-![Zeeguu core view](.github/readme/zeeguu-modelViewdiffView.png)
+# GITHUB ACTION CURRENTLY NOT WORKING, BUT ITS COMING SOON
