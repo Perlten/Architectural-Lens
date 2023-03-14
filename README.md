@@ -23,13 +23,13 @@ All commands must be run from the project's root folder
 <b>The system has 4 commands:</b> 
 
 
--`mt-diagrams create-config`- Creates the config template
+-`mt-diagrams init`- Creates the config template
 
 -`mt-diagrams render` - Renders the views specified in the config
 
 -`mt-diagrams render-diff` - Renders the differences in the views between your working branch and a specified branch
 
--`mt-diagrams create-action` Creates the github action which will automatically add the diffrence views to pull requests.
+-`mt-diagrams create-action` Creates the github action which will automatically add the difference views to pull requests.
 
 # Using the system
 
@@ -37,7 +37,7 @@ In this section, we will guide you through using the MT-Diagrams system by expla
 
 Although the project is not large, understanding the system even for this project size of roughly 40 packages can be challenging. To begin generating views, you need to be in the root of your project and run the following command:
 
-- `mt-diagrams create-config` 
+- `mt-diagrams init` 
 
 This will create an "mt-config.json" file in your root folder, where you can edit your desired views. This is the initial config:
 
@@ -150,13 +150,15 @@ Here is an example of the mt-config.json file used to generate the filtered view
 You can combine both strings and objects when defining packages in the packages array in the configuration file. For example, you can include all packages starting with "api/utils" along with packages in the "core" directory up to a depth of 1 using the following syntax:
 
 ```json
-packages: [
+
+"packages": [
     "api/utils",
     {
     "packagePath": "core",
     "depth": 1
     }
  ]
+
 ```
 
 ## Arrows
@@ -183,7 +185,7 @@ In addition to selecting which packages you want in your diagram, you can also s
 This can be done in two different ways:
 
 ```json
-packages: [
+"packages": [
 "*test*" #Removes any package which contains the word test
 "api/test" #Removes the package api/test and all of its sub packages
 ]
@@ -191,7 +193,7 @@ packages: [
 
 To clarify, the first method using an asterisk (*) will remove any package containing the specified keyword, while the second method will remove only the specified package and all of its sub-packages. This can be useful for cleaning up clutter in the diagram or for excluding certain packages that are not relevant to the analysis.
 
-## The diffrence views
+## The difference views
 To generate a difference view using MT-Diagrams, you need to be on a branch other than the one specified in the configuration file. Usually, you would compare your current branch with the main/master branch, but you have the flexibility to choose any branch you desire. For the following example, I have narrowed down the view by filtering out only the "core/model" package.
 
 ```json
@@ -232,4 +234,4 @@ To display the difference views in your pull requests, run the command:
 
 This command generates the necessary files in the .github folder, creating it if it doesn't already exist. Once this is done, you can create a pull request, and the difference view will be visible to the reviewer, as shown in the image below. Note that if there are no changes relative to the specified branch, the difference view will not be generated.
 
-INSERT LE IMAGE MANNN
+![Zeeguu core view](.github/readme/zeeguu-modelViewdiffView.png)
