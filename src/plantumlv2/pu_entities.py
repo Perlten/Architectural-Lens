@@ -47,7 +47,9 @@ class PuPackage:
             ]
         )
 
-    def filter_excess_packages(self, used_packages: set["PuPackage"]):
+    def filter_excess_packages_dependencies(
+        self, used_packages: set["PuPackage"]
+    ):
         filtered_dependency_list: list[PuDependency] = []
 
         for dependency in self.pu_dependency_list:
