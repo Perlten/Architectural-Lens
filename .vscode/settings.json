@@ -1,8 +1,10 @@
 {
     "python.formatting.provider": "black",
     "cSpell.words": [
+        "enduml",
         "jsonschema",
         "modname",
+        "startuml",
         "typer",
         "zeeguu"
     ],

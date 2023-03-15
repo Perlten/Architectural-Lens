@@ -10,6 +10,8 @@ from src.utils.path_manager_singleton import PathManagerSingleton
 from src.utils.functions import verify_config_options
 from src.utils.config_manager_singleton import ConfigManagerSingleton
 
+from src.plantumlv2.pu_manager import render_pu
+
 from src.core.bt_graph import BTGraph
 
 from src.plantuml.fetch_git import fetch_git_repo
@@ -56,6 +58,18 @@ def render(config_path: str = "mt_config.json"):
             views.get("usePackagePathAsLabel", True),
             save_location=config.get("saveLocation"),
         )
+
+
+@app.command()
+def render_v2(config_path: str = "mt_config.json"):
+    config = read_config_file(config_path)
+    mt_path_manager = PathManagerSingleton()
+    mt_path_manager.setup(config)
+
+    g = BTGraph()
+    g.build_graph(config)
+
+    render_pu(g, config)
 
 
 @app.command()

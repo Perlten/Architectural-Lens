@@ -9,7 +9,6 @@ class BTModule:
     child_module: list["BTModule"] = None
 
     name_if_duplicate_exists = None
-    depth = None
 
     file_list: list["BTFile"] = None
 
@@ -19,6 +18,11 @@ class BTModule:
         self.ast = astroid.MANAGER.ast_from_file(file_path)
         self.child_module = []
         self.file_list = []
+
+    @property
+    def depth(self):
+        parents = self.get_parent_module_recursive()
+        return len(parents)
 
     @property
     def name(self):
@@ -57,7 +61,7 @@ class BTModule:
         parent_module_list.extend(self.parent_module.get_parent_module_recursive())
         return parent_module_list
 
-    def get_module_dependencies(self):
+    def get_module_dependencies(self) -> set["BTModule"]:
         dependencies = set()
         for child in self.file_list:
             dependencies.update(map(lambda e: e.module, child.edge_to))
