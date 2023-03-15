@@ -10,12 +10,12 @@ import os
 
 
 def render_pu(graph: BTGraph, config: dict):
-    project_name = config["name"]
     views = _create_pu_graph(graph, config)
     for view_name, pu_package_map in views.items():
         plant_uml_str = _render_pu_graph(
             list(pu_package_map.values()), view_name, config
         )
+        project_name = config["name"]
         save_location = os.path.join(
             config["saveLocation"], f"{project_name}-{view_name}"
         )
@@ -25,6 +25,7 @@ def render_pu(graph: BTGraph, config: dict):
 def render_diff_pu(
     local_bt_graph: BTGraph, remote_bt_graph: BTGraph, config: dict
 ):
+    project_name = config["name"]
     local_graph_views = _create_pu_graph(local_bt_graph, config)
     remote_graph_views = _create_pu_graph(remote_bt_graph, config)
 
@@ -77,32 +78,39 @@ def render_diff_pu(
 
             diff_graph.append(package)
 
-        _render_pu_graph(diff_graph, view_name, config)
+        plant_uml_str = _render_pu_graph(diff_graph, view_name, config)
+        save_location = os.path.join(
+            config["saveLocation"], f"{project_name}-diff-{view_name}"
+        )
+        _save_plantuml_str(save_location, plant_uml_str)
+
+
+def _handle_duplicate_name(pu_graph: list[PuPackage]):
+    for package in pu_graph:
+        package_name_split = package.path.split("/")
+        found_duplicate = False
+        for package_2 in pu_graph:
+            if package == package_2:
+                continue
+            package_2_name_split = package_2.path.split("/")
+            if package_2_name_split[-1] == package_name_split[-1]:
+                if len(package_name_split) >= len(package_2_name_split):
+                    package.name = PACKAGE_NAME_SPLITTER.join(
+                        package_name_split[-2:]
+                    )
+                else:
+                    package.name = package_name_split[-1]
+                found_duplicate = True
+
+        if not found_duplicate:
+            package.name = package_name_split[-1]
 
 
 def _render_pu_graph(pu_graph: list[PuPackage], view_name, config):
     view_config: dict = config["views"][view_name]
     use_package_path_as_label = view_config.get("usePackagePathAsLabel", True)
     if not use_package_path_as_label:
-        for package in pu_graph:
-            package_name_split = package.path.split("/")
-            found_duplicate = False
-            for package_2 in pu_graph:
-                if package == package_2:
-                    continue
-                package_2_name_split = package_2.path.split("/")
-                if package_2_name_split[-1] == package_name_split[-1]:
-                    if len(package_name_split) >= len(package_2_name_split):
-                        package.name = PACKAGE_NAME_SPLITTER.join(
-                            package_name_split[-2:]
-                        )
-                    else:
-                        package.name = package_name_split[-1]
-                    found_duplicate = True
-
-            if not found_duplicate:
-                package.name = package_name_split[-1]
-
+        _handle_duplicate_name(pu_graph)
     pu_package_string = "\n".join(
         [pu_package.render_package() for pu_package in pu_graph]
     )

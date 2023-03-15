@@ -15,7 +15,6 @@ PACKAGE_NAME_SPLITTER = "."
 
 
 class PuPackage:
-
     name = ""
     state: EntityState = EntityState.NEUTRAL
     pu_dependency_list: list["PuDependency"] = None
@@ -55,7 +54,7 @@ class PuPackage:
 
     def render_package(self) -> str:
         config_manager = ConfigManagerSingleton()
-        state_str = self.state
+        state_str = self.state.value
         if self.state == EntityState.NEUTRAL:
             state_str = config_manager.package_color
 
@@ -119,6 +118,4 @@ class PuDependency:
             dependency_count_str = f": {self.dependency_count}"
         from_name = self.from_package.name
         to_name = self.to_package.name
-        return (
-            f'"{from_name}"-->"{to_name}" {self.state} {dependency_count_str}'
-        )
+        return f'"{from_name}"-->"{to_name}" {self.state.value} {dependency_count_str}'

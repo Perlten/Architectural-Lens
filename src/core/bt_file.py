@@ -19,7 +19,9 @@ class BTFile:
         self.ast = None
 
         if code_path is not None:
-            self.ast: astroid.Module = astroid.MANAGER.ast_from_module_name(code_path)
+            self.ast: astroid.Module = astroid.MANAGER.ast_from_module_name(
+                code_path
+            )
 
         self.edge_to = []
         self.module = module
@@ -48,7 +50,9 @@ class BTFile:
             existing_edges = set(
                 [edge.file for edge in self.edge_to if edge.file != ""]
             )
-            new_node_list = filter(lambda e: e.file not in existing_edges, other)
+            new_node_list = filter(
+                lambda e: e.file not in existing_edges, other
+            )
             self.edge_to.extend([node for node in new_node_list])
         else:
             edges = set([edge.file for edge in self.edge_to])
@@ -65,22 +69,24 @@ def get_imported_modules(ast: astroid.Module, root_location: str):
             if isinstance(sub_node, astroid.node_classes.ImportFrom):
                 sub_node: astroid.node_classes.ImportFrom = sub_node
 
-                try:
-                    module_node = astroid.MANAGER.ast_from_module_name(
-                        sub_node.modname + "." + sub_node.names[0][0],
-                        context_file=root_location,
-                    )
-                except Exception:
-                    module_node = astroid.MANAGER.ast_from_module_name(
-                        sub_node.modname,
-                        context_file=root_location,
-                    )
+                module_node = astroid.MANAGER.ast_from_module_name(
+                    sub_node.modname,
+                    context_file=root_location,
+                )
                 imported_modules.append(module_node)
 
-            if isinstance(sub_node, astroid.node_classes.Import):
-                pass
+            elif isinstance(sub_node, astroid.nodeclasses.Import):
+                for (name,) in sub_node.names:
+                    try:
+                        module_node = astroid.MANAGER.ast_from_module_name(
+                            name,
+                            context_file=root_location,
+                        )
+                        imported_modules.append(module_node)
+                    except Exception:
+                        continue
 
-        except AstroidImportError:
+        except astroid.AstroidImportError:
             continue
 
     return imported_modules
