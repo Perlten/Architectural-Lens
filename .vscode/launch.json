@@ -29,7 +29,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "render-diff",
+                "render-diff-v2",
                 "--config-path",
                 "${input:config_path}"
             ],

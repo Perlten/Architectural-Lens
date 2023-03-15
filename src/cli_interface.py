@@ -10,7 +10,7 @@ from src.utils.path_manager_singleton import PathManagerSingleton
 from src.utils.functions import verify_config_options
 from src.utils.config_manager_singleton import ConfigManagerSingleton
 
-from src.plantumlv2.pu_manager import render_pu
+from src.plantumlv2.pu_manager import render_pu, render_diff_pu
 
 from src.core.bt_graph import BTGraph
 
@@ -70,6 +70,32 @@ def render_v2(config_path: str = "mt_config.json"):
     g.build_graph(config)
 
     render_pu(g, config)
+
+
+@app.command()
+def render_diff_v2(config_path: str = "mt_config.json"):
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        print("Created temporary directory:", tmp_dir)
+        config = read_config_file(config_path)
+
+        fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
+
+        shutil.copyfile(config_path, os.path.join(tmp_dir, "mt_config.json"))
+
+        config_git = read_config_file(os.path.join(tmp_dir, "mt_config.json"))
+
+        path_manager = PathManagerSingleton()
+        path_manager.setup(config, config_git)
+
+        remote_graph = BTGraph()
+        remote_graph.build_graph(config_git)
+        # verify_config_options(config_git, g_git)
+
+        local_graph = BTGraph()
+        local_graph.build_graph(config)
+        # verify_config_options(config, g)
+
+        render_diff_pu(local_graph, remote_graph, config)
 
 
 @app.command()

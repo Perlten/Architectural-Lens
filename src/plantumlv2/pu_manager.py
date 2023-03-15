@@ -1,41 +1,111 @@
 from src.core.bt_graph import BTGraph
-from src.plantumlv2.pu_entities import PuPackage
+from src.plantumlv2.pu_entities import EntityState, PuPackage
 from src.plantumlv2.utils import get_pu_package_name_from_bt_package
+import os
 
 
 def render_pu(graph: BTGraph, config: dict):
-    bt_packages = graph.get_all_bt_modules_map()
+    views = _create_pu_graph(graph, config)
+    for view_name, pu_package_map in views.items():
+        _render_pu_graph(list(pu_package_map.values()), view_name)
 
-    for view_name, view in config["views"].items():
-        pu_package_map: dict[str, PuPackage] = {}
-        for bt_package in bt_packages.values():
-            pu_package = PuPackage(bt_package)
-            pu_package_map[pu_package.name] = pu_package
 
-        for pu_package in pu_package_map.values():
-            pu_package.setup_dependencies(pu_package_map)
+def render_diff_pu(
+    local_bt_graph: BTGraph, remote_bt_graph: BTGraph, config: dict
+):
+    local_graph_views = _create_pu_graph(local_bt_graph, config)
+    remote_graph_views = _create_pu_graph(remote_bt_graph, config)
 
-        pu_package_list = filter_packages(pu_package_map, view)
+    for view_name, local_graph in local_graph_views.items():
+        diff_graph: list[PuPackage] = []
+        remote_graph = remote_graph_views[view_name]
+        # Created packages
+        for path, package in local_graph.items():
+            if path not in remote_graph:
+                package.state = EntityState.CREATED
+                for package_dependency in package.pu_dependency_list:
+                    package_dependency.state = EntityState.CREATED
+                diff_graph.append(package)
 
-        pu_package_string = "\n".join(
-            [pu_package.render_package() for pu_package in pu_package_list]
-        )
-        pu_dependency_string = "\n".join(
-            [pu_package.render_dependency() for pu_package in pu_package_list]
-        )
-        uml_str = f"""
+        # Deleted packages
+        for remote_path, remote_package in remote_graph.items():
+            if remote_path not in local_graph:
+                remote_package.state = EntityState.DELETED
+                for (
+                    remote_package_dependencies
+                ) in remote_package.pu_dependency_list:
+                    remote_package_dependencies.state = EntityState.DELETED
+                diff_graph.append(remote_package)
+
+        # Change dependency state
+        for path, package in local_graph.items():
+            if path not in remote_graph:
+                continue  # We have already dealt with this case above
+            local_dependency_map = package.get_dependency_map()
+            remote_dependency_map = remote_graph[path].get_dependency_map()
+
+            # Created dependencies
+            for dependency_path, dependency in local_dependency_map.items():
+                if dependency_path not in remote_dependency_map:
+                    dependency.state = EntityState.CREATED
+
+            # Deleted dependencies
+            for (
+                remote_dependency_path,
+                remote_dependency,
+            ) in remote_dependency_map.items():
+                if remote_dependency_path not in local_dependency_map:
+                    remote_dependency.state = EntityState.DELETED
+                    package.pu_dependency_list.append(remote_dependency)
+
+            diff_graph.append(package)
+
+        _render_pu_graph(diff_graph, view_name)
+
+
+def _render_pu_graph(pu_graph: list[PuPackage], view_name):
+    pu_package_string = "\n".join(
+        [pu_package.render_package() for pu_package in pu_graph]
+    )
+    pu_dependency_string = "\n".join(
+        [pu_package.render_dependency() for pu_package in pu_graph]
+    )
+    uml_str = f"""
 @startuml
 title {view_name}
 {pu_package_string}
 {pu_dependency_string}
 @enduml
         """
+
+    if os.getenv("MT_DEBUG"):
         print(uml_str)
         print("Program Complete")
+    return uml_str
 
 
-def find_packages_with_depth(
-    package: PuPackage, depth: int, pu_package_map: dict[PuPackage]
+def _create_pu_graph(
+    graph: BTGraph, config: dict
+) -> dict[str, dict[str, PuPackage]]:
+    bt_packages = graph.get_all_bt_modules_map()
+    views = {}
+
+    for view_name, view in config["views"].items():
+        pu_package_map: dict[str, PuPackage] = {}
+        for bt_package in bt_packages.values():
+            pu_package = PuPackage(bt_package)
+            pu_package_map[pu_package.path] = pu_package
+
+        for pu_package in pu_package_map.values():
+            pu_package.setup_dependencies(pu_package_map)
+
+        pu_package_map = _filter_packages(pu_package_map, view)
+        views[view_name] = pu_package_map
+    return views
+
+
+def _find_packages_with_depth(
+    package: PuPackage, depth: int, pu_package_map: dict[str, PuPackage]
 ):
     bt_sub_packages = package.bt_package.get_submodules_recursive()
     filtered_sub_packages = [
@@ -46,9 +116,9 @@ def find_packages_with_depth(
     return [pu_package_map[p] for p in filtered_sub_packages]
 
 
-def filter_packages(
+def _filter_packages(
     packages_map: dict[str, PuPackage], view: dict
-) -> list[PuPackage]:
+) -> dict[str, PuPackage]:
     packages = packages_map.values()
     filtered_packages_set: set[PuPackage] = set()
     # packages
@@ -65,7 +135,7 @@ def filter_packages(
                 view_depth = package_view["depth"]
                 if package.path == filter_path:
                     filtered_packages_set.add(package)
-                    depth_filter_packages = find_packages_with_depth(
+                    depth_filter_packages = _find_packages_with_depth(
                         package, view_depth, packages_map
                     )
                     filtered_packages_set.update(depth_filter_packages)
@@ -78,7 +148,6 @@ def filter_packages(
     for ignore_packages in view["ignorePackages"]:
         for package in filtered_packages_set:
             should_filter = False
-            ignore_packages: str = ignore_packages
             if ignore_packages.startswith("*") and ignore_packages.endswith(
                 "*"
             ):
@@ -98,4 +167,4 @@ def filter_packages(
 
     for package in packages:
         package.filter_excess_packages_dependencies(filtered_packages_set)
-    return list(filtered_packages_set)
+    return {package.path: package for package in filtered_packages_set}
