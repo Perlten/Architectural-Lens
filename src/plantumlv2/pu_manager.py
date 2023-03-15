@@ -43,35 +43,59 @@ def find_packages_with_depth(
         for sub_package in bt_sub_packages
         if (sub_package.depth - package.bt_package.depth) <= depth
     ]
-    t = [pu_package_map[p] for p in filtered_sub_packages]
-    return t
+    return [pu_package_map[p] for p in filtered_sub_packages]
 
 
 def filter_packages(
     packages_map: dict[PuPackage], view: dict
 ) -> list[PuPackage]:
     packages = packages_map.values()
-    filtered_packages_list: set[PuPackage] = set()
+    filtered_packages_set: set[PuPackage] = set()
+    # packages
     for package_view in view["packages"]:
         for package in packages:
             filter_path = package_view
+
             if isinstance(package_view, str):
                 if package.path.startswith(filter_path):
-                    filtered_packages_list.add(package)
+                    filtered_packages_set.add(package)
 
             if isinstance(package_view, dict):
                 filter_path = package_view["packagePath"]
                 view_depth = package_view["depth"]
                 if package.path == filter_path:
-                    filtered_packages_list.add(package)
-                    t = find_packages_with_depth(
+                    filtered_packages_set.add(package)
+                    depth_filter_packages = find_packages_with_depth(
                         package, view_depth, packages_map
                     )
-                    filtered_packages_list.update(t)
-                    pass
+                    filtered_packages_set.update(depth_filter_packages)
 
-    # TODO: handle ignorePackages
+    if len(view["packages"]) == 0:
+        filtered_packages_set = set(packages_map.values())
+
+    # ignorePackages
+    updated_filtered_packages_set: set = set()
+    for ignore_packages in view["ignorePackages"]:
+        for package in filtered_packages_set:
+            should_filter = False
+            ignore_packages: str = ignore_packages
+            if ignore_packages.startswith("*") and ignore_packages.endswith(
+                "*"
+            ):
+                if ignore_packages[1:-1] in package.path:
+                    should_filter = True
+            else:
+                if package.path.startswith(ignore_packages):
+                    should_filter = True
+
+            if not should_filter:
+                updated_filtered_packages_set.add(package)
+
+    if len(view["ignorePackages"]) == 0:
+        updated_filtered_packages_set = filtered_packages_set
+
+    filtered_packages_set = updated_filtered_packages_set
 
     for package in packages:
-        package.filter_excess_packages(filtered_packages_list)
-    return list(filtered_packages_list)
+        package.filter_excess_packages(filtered_packages_set)
+    return list(filtered_packages_set)
