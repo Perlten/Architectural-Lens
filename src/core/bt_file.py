@@ -1,5 +1,4 @@
 import astroid
-from astroid.exceptions import AstroidImportError
 
 from typing import TYPE_CHECKING
 
