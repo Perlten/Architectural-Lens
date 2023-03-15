@@ -45,8 +45,9 @@
         "packageColor": {
             "type": "string",
             "enum": [
-                "GoldenRod",
-                "Azure"
+                "#GoldenRod",
+                "#Azure",
+                ""
             ]
         },
         "views": {

@@ -1,6 +1,8 @@
 from src.core.bt_module import BTModule
-from src.plantumlv2.utils import get_pu_package_name_from_bt_package
+from src.plantumlv2.utils import get_pu_package_path_from_bt_package
 from enum import Enum
+
+from src.utils.config_manager_singleton import ConfigManagerSingleton
 
 
 class EntityState(str, Enum):
@@ -9,7 +11,11 @@ class EntityState(str, Enum):
     CREATED = "#Green"
 
 
+PACKAGE_NAME_SPLITTER = "."
+
+
 class PuPackage:
+
     name = ""
     state: EntityState = EntityState.NEUTRAL
     pu_dependency_list: list["PuDependency"] = None
@@ -17,18 +23,19 @@ class PuPackage:
 
     def __init__(self, bt_package: BTModule) -> None:
         self.pu_dependency_list = []
-        # TODO: allow name to no be path
-        self.name = get_pu_package_name_from_bt_package(bt_package)
+        self.name = PACKAGE_NAME_SPLITTER.join(
+            get_pu_package_path_from_bt_package(bt_package).split("/")
+        )
         self.bt_package = bt_package
 
     @property
     def path(self):
-        return get_pu_package_name_from_bt_package(self.bt_package)
+        return get_pu_package_path_from_bt_package(self.bt_package)
 
     def setup_dependencies(self, pu_package_map: dict[str, "PuPackage"]):
         bt_dependencies = self.bt_package.get_module_dependencies()
         for bt_package_dependency in bt_dependencies:
-            pu_path = get_pu_package_name_from_bt_package(
+            pu_path = get_pu_package_path_from_bt_package(
                 bt_package_dependency
             )
             pu_package_dependency = pu_package_map[pu_path]
@@ -42,7 +49,12 @@ class PuPackage:
             )
 
     def render_package(self) -> str:
-        return f'package "{self.name}" {self.state}'
+        config_manager = ConfigManagerSingleton()
+        state_str = self.state
+        if self.state == EntityState.NEUTRAL:
+            state_str = config_manager.package_color
+
+        return f'package "{self.name}" {state_str}'
 
     def render_dependency(self) -> str:
         return "\n".join(
@@ -96,6 +108,12 @@ class PuDependency:
         )
 
     def render(self) -> str:
+        config_manager = ConfigManagerSingleton()
+        dependency_count_str = ""
+        if config_manager.show_dependency_count:
+            dependency_count_str = f": {self.dependency_count}"
         from_name = self.from_package.name
         to_name = self.to_package.name
-        return f'"{from_name}"-->"{to_name}" {self.state}: {self.dependency_count}'
+        return (
+            f'"{from_name}"-->"{to_name}" {self.state} {dependency_count_str}'
+        )

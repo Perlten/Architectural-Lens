@@ -1,13 +1,17 @@
 from src.core.bt_graph import BTGraph
-from src.plantumlv2.pu_entities import EntityState, PuPackage
-from src.plantumlv2.utils import get_pu_package_name_from_bt_package
+from src.plantumlv2.pu_entities import (
+    PACKAGE_NAME_SPLITTER,
+    EntityState,
+    PuPackage,
+)
+from src.plantumlv2.utils import get_pu_package_path_from_bt_package
 import os
 
 
 def render_pu(graph: BTGraph, config: dict):
     views = _create_pu_graph(graph, config)
     for view_name, pu_package_map in views.items():
-        _render_pu_graph(list(pu_package_map.values()), view_name)
+        _render_pu_graph(list(pu_package_map.values()), view_name, config)
 
 
 def render_diff_pu(
@@ -56,23 +60,51 @@ def render_diff_pu(
             ) in remote_dependency_map.items():
                 if remote_dependency_path not in local_dependency_map:
                     remote_dependency.state = EntityState.DELETED
+                    remote_dependency.from_package = package
+                    remote_dependency.to_package = local_graph[
+                        remote_dependency_path
+                    ]  # Ensures that the package refs will be in the final graph
                     package.pu_dependency_list.append(remote_dependency)
 
             diff_graph.append(package)
 
-        _render_pu_graph(diff_graph, view_name)
+        _render_pu_graph(diff_graph, view_name, config)
 
 
-def _render_pu_graph(pu_graph: list[PuPackage], view_name):
+def _render_pu_graph(pu_graph: list[PuPackage], view_name, config):
+    view_config: dict = config["views"][view_name]
+    use_package_path_as_label = view_config.get("usePackagePathAsLabel", True)
+    if not use_package_path_as_label:
+        for package in pu_graph:
+            package_name_split = package.path.split("/")
+            found_duplicate = False
+            for package_2 in pu_graph:
+                if package == package_2:
+                    continue
+                package_2_name_split = package_2.path.split("/")
+                if package_2_name_split[-1] == package_name_split[-1]:
+                    if len(package_name_split) >= len(package_2_name_split):
+                        package.name = PACKAGE_NAME_SPLITTER.join(
+                            package_name_split[-2:]
+                        )
+                    else:
+                        package.name = package_name_split[-1]
+                    found_duplicate = True
+
+            if not found_duplicate:
+                package.name = package_name_split[-1]
+
     pu_package_string = "\n".join(
         [pu_package.render_package() for pu_package in pu_graph]
     )
     pu_dependency_string = "\n".join(
         [pu_package.render_dependency() for pu_package in pu_graph]
     )
+    project_name = config.get("name", "")
+    title = f"{project_name}-{view_name}"
     uml_str = f"""
 @startuml
-title {view_name}
+title {title}
 {pu_package_string}
 {pu_dependency_string}
 @enduml
@@ -109,7 +141,7 @@ def _find_packages_with_depth(
 ):
     bt_sub_packages = package.bt_package.get_submodules_recursive()
     filtered_sub_packages = [
-        get_pu_package_name_from_bt_package(sub_package)
+        get_pu_package_path_from_bt_package(sub_package)
         for sub_package in bt_sub_packages
         if (sub_package.depth - package.bt_package.depth) <= depth
     ]

@@ -63,6 +63,10 @@ def render(config_path: str = "mt_config.json"):
 @app.command()
 def render_v2(config_path: str = "mt_config.json"):
     config = read_config_file(config_path)
+
+    config_manager = ConfigManagerSingleton()
+    config_manager.setup(config)
+
     mt_path_manager = PathManagerSingleton()
     mt_path_manager.setup(config)
 
@@ -77,8 +81,12 @@ def render_diff_v2(config_path: str = "mt_config.json"):
     with tempfile.TemporaryDirectory() as tmp_dir:
         print("Created temporary directory:", tmp_dir)
         config = read_config_file(config_path)
+        config_manager = ConfigManagerSingleton()
+        config_manager.setup(config)
 
-        fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
+        fetch_git_repo(
+            tmp_dir, config["github"]["url"], config["github"]["branch"]
+        )
 
         shutil.copyfile(config_path, os.path.join(tmp_dir, "mt_config.json"))
 
@@ -104,7 +112,9 @@ def render_diff(config_path: str = "mt_config.json"):
         print("Created temporary directory:", tmp_dir)
         config = read_config_file(config_path)
 
-        fetch_git_repo(tmp_dir, config["github"]["url"], config["github"]["branch"])
+        fetch_git_repo(
+            tmp_dir, config["github"]["url"], config["github"]["branch"]
+        )
 
         shutil.copyfile(config_path, os.path.join(tmp_dir, "mt_config.json"))
 
@@ -127,7 +137,9 @@ def render_diff(config_path: str = "mt_config.json"):
             formatted_views = []
             for view in views["packages"]:
                 if type(view) == str:
-                    formatted_views.append(config.get("rootFolder") + f"/{view}")
+                    formatted_views.append(
+                        config.get("rootFolder") + f"/{view}"
+                    )
                 else:
                     view["packagePath"] = (
                         config.get("rootFolder") + "/" + view["packagePath"]
