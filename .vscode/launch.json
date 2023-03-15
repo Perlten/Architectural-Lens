@@ -27,7 +27,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/src/cli_interface.py",
             "console": "integratedTerminal",
-            // "justMyCode": true,
+            "justMyCode": true,
             "args": [
                 "render-diff-v2",
                 "--config-path",

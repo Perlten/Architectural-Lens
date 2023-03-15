@@ -28,6 +28,7 @@ def render_diff_pu(
     project_name = config["name"]
     local_graph_views = _create_pu_graph(local_bt_graph, config)
     remote_graph_views = _create_pu_graph(remote_bt_graph, config)
+    packages_to_skip_dependency_update = set()
 
     for view_name, local_graph in local_graph_views.items():
         diff_graph: list[PuPackage] = []
@@ -50,10 +51,14 @@ def render_diff_pu(
                     remote_package_dependencies.state = EntityState.DELETED
                 diff_graph.append(remote_package)
                 local_graph[remote_path] = remote_package
+                packages_to_skip_dependency_update.add(remote_path)
 
         # Change dependency state
         for path, package in local_graph.items():
-            if path not in remote_graph:
+            if (
+                path not in remote_graph
+                or path in packages_to_skip_dependency_update
+            ):
                 continue  # We have already dealt with this case above
             local_dependency_map = package.get_dependency_map()
             remote_dependency_map = remote_graph[path].get_dependency_map()
