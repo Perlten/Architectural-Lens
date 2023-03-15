@@ -1,3 +1,4 @@
+import sys
 from src.core.bt_graph import BTGraph
 from src.plantumlv2.pu_entities import (
     PACKAGE_NAME_SPLITTER,
@@ -9,9 +10,16 @@ import os
 
 
 def render_pu(graph: BTGraph, config: dict):
+    project_name = config["name"]
     views = _create_pu_graph(graph, config)
     for view_name, pu_package_map in views.items():
-        _render_pu_graph(list(pu_package_map.values()), view_name, config)
+        plant_uml_str = _render_pu_graph(
+            list(pu_package_map.values()), view_name, config
+        )
+        save_location = os.path.join(
+            config["saveLocation"], f"{project_name}-{view_name}"
+        )
+        _save_plantuml_str(save_location, plant_uml_str)
 
 
 def render_diff_pu(
@@ -40,6 +48,7 @@ def render_diff_pu(
                 ) in remote_package.pu_dependency_list:
                     remote_package_dependencies.state = EntityState.DELETED
                 diff_graph.append(remote_package)
+                local_graph[remote_path] = remote_package
 
         # Change dependency state
         for path, package in local_graph.items():
@@ -114,6 +123,20 @@ title {title}
         print(uml_str)
         print("Program Complete")
     return uml_str
+
+
+def _save_plantuml_str(file_name: str, data: str):
+    os.makedirs(os.path.dirname(file_name), exist_ok=True)
+    with open(file_name, "w") as f:
+        f.write(data)
+    python_executable = sys.executable
+    plantuml_server = os.getenv(
+        "PLANTUML_SERVER_URL",
+        "https://mt-plantuml-app-service.azurewebsites.net/img/",
+    )
+    os.system(
+        f"{python_executable} -m plantuml --server {plantuml_server}  {file_name}"
+    )
 
 
 def _create_pu_graph(

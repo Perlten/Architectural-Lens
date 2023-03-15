@@ -38,15 +38,20 @@ class PuPackage:
             pu_path = get_pu_package_path_from_bt_package(
                 bt_package_dependency
             )
-            pu_package_dependency = pu_package_map[pu_path]
-            self.pu_dependency_list.append(
-                PuDependency(
-                    self,
-                    pu_package_dependency,
-                    self.bt_package,
-                    bt_package_dependency,
+            if pu_path == self.path:
+                continue
+            try:
+                pu_package_dependency = pu_package_map[pu_path]
+                self.pu_dependency_list.append(
+                    PuDependency(
+                        self,
+                        pu_package_dependency,
+                        self.bt_package,
+                        bt_package_dependency,
+                    )
                 )
-            )
+            except Exception:
+                pass
 
     def render_package(self) -> str:
         config_manager = ConfigManagerSingleton()
