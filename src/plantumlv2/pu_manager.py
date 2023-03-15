@@ -126,6 +126,7 @@ def _render_pu_graph(pu_graph: list[PuPackage], view_name, config):
     title = f"{project_name}-{view_name}"
     uml_str = f"""
 @startuml
+skinparam backgroundColor GhostWhite
 title {title}
 {pu_package_string}
 {pu_dependency_string}
@@ -150,6 +151,9 @@ def _save_plantuml_str(file_name: str, data: str):
     os.system(
         f"{python_executable} -m plantuml --server {plantuml_server}  {file_name}"
     )
+
+    if os.path.exists(file_name):
+        os.remove(file_name)
 
 
 def _create_pu_graph(

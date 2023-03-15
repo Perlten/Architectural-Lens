@@ -16,7 +16,7 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "/*/bt_config.json",
+                "/*/mt_config.json",
             ],
             "url": "./config.schema.json"
         }
