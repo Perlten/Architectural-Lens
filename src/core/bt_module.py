@@ -2,6 +2,7 @@ import astroid
 import os
 
 from src.core.bt_file import BTFile
+from astroid.manager import AstroidManager
 
 
 class BTModule:
@@ -13,11 +14,13 @@ class BTModule:
     file_list: list["BTFile"] = None
 
     ast: astroid.Module = None
+    am: AstroidManager = None
 
-    def __init__(self, file_path: str) -> None:
-        self.ast = astroid.MANAGER.ast_from_file(file_path)
+    def __init__(self, file_path: str, am: AstroidManager) -> None:
+        self.ast = am.ast_from_file(file_path)
         self.child_module = []
         self.file_list = []
+        self.am = am
 
     @property
     def depth(self):
@@ -34,12 +37,16 @@ class BTModule:
 
     def add_files(self):
         files = [
-            element for element in os.listdir(self.path) if element.endswith(".py")
+            element
+            for element in os.listdir(self.path)
+            if element.endswith(".py")
         ]
 
         for file in files:
-            bt_file = BTFile(label=file.split("/")[-1], module=self)
-            bt_file.ast = astroid.MANAGER.ast_from_file(os.path.join(self.path, file))
+            bt_file = BTFile(
+                label=file.split("/")[-1], module=self, am=self.am
+            )
+            bt_file.ast = self.am.ast_from_file(os.path.join(self.path, file))
             self.file_list.append(bt_file)
 
     def get_files_recursive(self) -> list[BTFile]:
@@ -58,7 +65,9 @@ class BTModule:
         if self.parent_module is None:
             return []
         parent_module_list = [self.parent_module]
-        parent_module_list.extend(self.parent_module.get_parent_module_recursive())
+        parent_module_list.extend(
+            self.parent_module.get_parent_module_recursive()
+        )
         return parent_module_list
 
     def get_module_dependencies(self) -> set["BTModule"]:
@@ -70,7 +79,11 @@ class BTModule:
     def get_dependency_count(self, other: "BTModule"):
         file_dependencies = other.get_files_recursive()
         files = [
-            edge for element in self.get_files_recursive() for edge in element.edge_to
+            edge
+            for element in self.get_files_recursive()
+            for edge in element.edge_to
         ]
-        count = len([element for element in files if element in file_dependencies])
+        count = len(
+            [element for element in files if element in file_dependencies]
+        )
         return count

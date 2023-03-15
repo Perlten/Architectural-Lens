@@ -1,5 +1,5 @@
 import astroid
-from astroid.exceptions import AstroidImportError
+from astroid.manager import AstroidManager
 
 from typing import TYPE_CHECKING
 
@@ -12,16 +12,17 @@ class BTFile:
     edge_to: list["BTFile"] = None
     ast = None
     module: "BTModule" = None
+    am: AstroidManager
 
-    def __init__(self, label: str, module, code_path: str = None):
-        print(f"create {label}")
+    def __init__(
+        self, label: str, module, am: AstroidManager, code_path: str = None
+    ):
         self.label = label
         self.ast = None
+        self.am = am
 
         if code_path is not None:
-            self.ast: astroid.Module = astroid.MANAGER.ast_from_module_name(
-                code_path
-            )
+            self.ast: astroid.Module = self.am.ast_from_module_name(code_path)
 
         self.edge_to = []
         self.module = module
@@ -62,23 +63,25 @@ class BTFile:
             self.edge_to.append(other)
 
 
-def get_imported_modules(ast: astroid.Module, root_location: str):
+def get_imported_modules(
+    ast: astroid.Module, root_location: str, am: AstroidManager
+):
     imported_modules = []
     for sub_node in ast.body:
         try:
             if isinstance(sub_node, astroid.node_classes.ImportFrom):
                 sub_node: astroid.node_classes.ImportFrom = sub_node
 
-                module_node = astroid.MANAGER.ast_from_module_name(
+                module_node = am.ast_from_module_name(
                     sub_node.modname,
                     context_file=root_location,
                 )
                 imported_modules.append(module_node)
 
-            elif isinstance(sub_node, astroid.nodeclasses.Import):
-                for (name,) in sub_node.names:
+            elif isinstance(sub_node, astroid.node_classes.Import):
+                for name, _ in sub_node.names:
                     try:
-                        module_node = astroid.MANAGER.ast_from_module_name(
+                        module_node = am.ast_from_module_name(
                             name,
                             context_file=root_location,
                         )
