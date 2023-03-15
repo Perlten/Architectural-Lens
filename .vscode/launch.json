@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "render-v2",
+                "render",
                 "--config-path",
                 "${input:config_path}"
             ],
@@ -29,7 +29,7 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "render-diff-v2",
+                "render-diff",
                 "--config-path",
                 "${input:config_path}"
             ],
