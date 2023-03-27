@@ -73,18 +73,10 @@ class PuPackage:
         return f'package "{self.name}" {state_str}'
 
     def render_dependency(self) -> str:
-        aggregate_dependency_map: dict[str, PuDependency] = {}
-        for dependency in self.pu_dependency_list:
-            if dependency.id not in aggregate_dependency_map:
-                aggregate_dependency_map[dependency.id] = dependency
-            else:
-                dep = aggregate_dependency_map[dependency.id]
-                dep.dependency_count += dependency.dependency_count
-
         return "\n".join(
             [
                 pu_dependency.render()
-                for pu_dependency in aggregate_dependency_map.values()
+                for pu_dependency in self.pu_dependency_list
             ]
         )
 
@@ -107,6 +99,16 @@ class PuPackage:
             if dependency.to_package != self
             and dependency.to_package in used_packages
         ]
+
+        # Makes sure that there is only one dependency per package
+        aggregate_dependency_map: dict[str, PuDependency] = {}
+        for dependency in self.pu_dependency_list:
+            if dependency.id not in aggregate_dependency_map:
+                aggregate_dependency_map[dependency.id] = dependency
+            else:
+                dep = aggregate_dependency_map[dependency.id]
+                dep.dependency_count += dependency.dependency_count
+        self.pu_dependency_list = list(aggregate_dependency_map.values())
 
     def get_dependency_map(self) -> dict[str, "PuDependency"]:
         return {
