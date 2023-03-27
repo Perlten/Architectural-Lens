@@ -16,6 +16,8 @@ PACKAGE_NAME_SPLITTER = "."
 
 class PuPackage:
     name = ""
+    parent: "PuPackage" = None
+    sub_modules: list["PuPackage"] = None
     state: EntityState = EntityState.NEUTRAL
     pu_dependency_list: list["PuDependency"] = None
     bt_package: BTModule = None
@@ -26,13 +28,23 @@ class PuPackage:
             get_pu_package_path_from_bt_package(bt_package).split("/")
         )
         self.bt_package = bt_package
+        self.sub_modules = []
 
     @property
     def path(self):
         return get_pu_package_path_from_bt_package(self.bt_package)
 
+    @property
+    def parent_path(self):
+        return get_pu_package_path_from_bt_package(
+            self.bt_package.parent_module
+        )
+
     def setup_dependencies(self, pu_package_map: dict[str, "PuPackage"]):
         bt_dependencies = self.bt_package.get_module_dependencies()
+        self.parent = pu_package_map.get(self.parent_path)
+        if self.parent:
+            self.parent.sub_modules.append(self)
         for bt_package_dependency in bt_dependencies:
             pu_path = get_pu_package_path_from_bt_package(
                 bt_package_dependency
@@ -61,22 +73,40 @@ class PuPackage:
         return f'package "{self.name}" {state_str}'
 
     def render_dependency(self) -> str:
+        aggregate_dependency_map: dict[str, PuDependency] = {}
+        for dependency in self.pu_dependency_list:
+            if dependency.id not in aggregate_dependency_map:
+                aggregate_dependency_map[dependency.id] = dependency
+            else:
+                dep = aggregate_dependency_map[dependency.id]
+                dep.dependency_count += dependency.dependency_count
+
         return "\n".join(
             [
                 pu_dependency.render()
-                for pu_dependency in self.pu_dependency_list
+                for pu_dependency in aggregate_dependency_map.values()
             ]
         )
 
     def filter_excess_packages_dependencies(
         self, used_packages: set["PuPackage"]
     ):
-        filtered_dependency_list: list[PuDependency] = []
+        for sub_module in self.sub_modules:
+            if sub_module not in used_packages:
+                sub_module.filter_excess_packages_dependencies(used_packages)
+                self.pu_dependency_list.extend(sub_module.pu_dependency_list)
 
+        # change all from package to self
         for dependency in self.pu_dependency_list:
-            if dependency.to_package in used_packages:
-                filtered_dependency_list.append(dependency)
-        self.pu_dependency_list = filtered_dependency_list
+            dependency.from_package = self
+
+        # filter all dependencies pointing to self
+        self.pu_dependency_list = [
+            dependency
+            for dependency in self.pu_dependency_list
+            if dependency.to_package != self
+            and dependency.to_package in used_packages
+        ]
 
     def get_dependency_map(self) -> dict[str, "PuDependency"]:
         return {
@@ -110,6 +140,10 @@ class PuDependency:
         self.dependency_count = self.from_bt_package.get_dependency_count(
             self.to_bt_package
         )
+
+    @property
+    def id(self):
+        return f"{self.from_package.name}-->{self.to_package.name}"
 
     def render(self) -> str:
         config_manager = ConfigManagerSingleton()
