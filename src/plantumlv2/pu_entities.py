@@ -97,17 +97,18 @@ class PuPackage:
                 self.pu_dependency_list.extend(sub_module.pu_dependency_list)
 
         for dependency in self.pu_dependency_list:
-            l = dependency.to_package.get_parent_list()
-            for p in l:
-                if p in used_packages:
-                    dep = PuDependency(
-                        self,
-                        p,
-                        dependency.from_bt_package,
-                        dependency.to_bt_package,
-                    )
-                    self.pu_dependency_list.append(dep)
-                    break
+            if dependency.to_package not in used_packages:
+                parent_list = dependency.to_package.get_parent_list()
+                for p in parent_list:
+                    if p in used_packages:
+                        dep = PuDependency(
+                            self,
+                            p,
+                            dependency.from_bt_package,
+                            dependency.to_bt_package,
+                        )
+                        self.pu_dependency_list.append(dep)
+                        break
 
         # change all from package to self
         for dependency in self.pu_dependency_list:

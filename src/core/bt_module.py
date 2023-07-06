@@ -44,8 +44,6 @@ class BTModule:
         ]
 
         for file in files:
-            if file == "testing.py":
-                continue
             bt_file = BTFile(
                 label=file.split("/")[-1], module=self, am=self.am
             )

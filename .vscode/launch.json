@@ -85,7 +85,7 @@
                 "${workspaceFolder}/test_projects/api/archlens.json",
                 "${workspaceFolder}/test_projects/pandas/archlens.json",
             ],
-            "default": "${workspaceFolder}/test_projects/calibre/archlens.json",
+            "default": "${workspaceFolder}/test_projects/zeeguu/archlens.json",
         }
     ]
 }
